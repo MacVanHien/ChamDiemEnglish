@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "182778654453",
+    "project_id": "chamdiemenglish",
+    "storage_bucket": "chamdiemenglish.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:182778654453:android:85d6e1e904e6119ce65fbc",
+        "android_client_info": {
+          "package_name": "com.chamdiemenglish"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD2pUUyq6OyQfeb14UcJ406HeqPOjKDZEo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
