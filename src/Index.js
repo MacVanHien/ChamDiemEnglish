@@ -6,6 +6,9 @@ import LogIn from './LogIn';
 import Home from './Home';
 import SplashScreen from './SplashScreen';
 import TermsOfUser from './TermsOfUser';
+import Personnal from './Personnal';
+
+
 
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -26,6 +29,7 @@ const RootComponent = () => {
 
                 <Stack.Screen name="SplashScreen" component={SplashScreen} />
                 <Stack.Screen name="Home" component={Home} />
+                <Stack.Screen name="Personnal" component={Personnal} />
 
                 <Stack.Screen name="LogIn" component={LogIn} />
                 <Stack.Screen name="SignUp" component={SignUp} />

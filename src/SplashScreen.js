@@ -7,8 +7,15 @@ const HEIGHT = Dimensions.get("window").height
 
 
 
+
+
+
 export default function SplashScreen({navigation}) {
 
+
+
+
+  
   useEffect(() => {
     NavigateToAuthAppScreen();
   }, [navigation]);
@@ -29,6 +36,13 @@ export default function SplashScreen({navigation}) {
       });
     }, 1000);
   }
+
+
+
+
+
+
+
 
   return (
     <View
