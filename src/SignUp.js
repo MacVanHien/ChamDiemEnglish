@@ -234,13 +234,9 @@ export default function SignUp({ route, navigation }) {
             country: value,
             facebook: '',
             contact: '',
-            stars: 1, //đăng nhập lần đầu đc 1 star, để tránh lỗi !!0 == false
-            dayTime: moment().format('YYYYMMDD'),
-            todayDoneHomeE: false,
-            quizzesLv2E: false,
-            quizzesLv2VoE: false,
-            keyLessonUserWords: 1, //từ 1 đi để tránh trong jvs !!0 là false
-
+            stars: 5, //đăng nhập lần đầu là 5 star, thì có thể tránh lỗi !!0 == false  //điểm 5 thể hiện biểu trưng đang level trung bình :)
+             dayTime: moment().format('YYYYMMDD'),
+            userId: userId,
         }, function (error) {
             if (error) {
                 // The write failed...

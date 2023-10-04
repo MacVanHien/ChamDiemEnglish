@@ -247,13 +247,22 @@ export default function Personnal({ navigation }) {
                 { text: "OK", onPress: () => signOutUser() }
             ]
         );
-
-
-
-
-
-
     // console.log(data[0].country)
+
+
+    useEffect(() => {
+        if (keyAdmindTrue) {
+            firebase.database().ref(`users/${userId}/keyAdmindTrue`).set(true);
+        }
+    }, [keyAdmindTrue]);
+
+
+
+
+
+
+
+
 
     return (
         <View style={{ height: '100%', flex: 1 }}>

@@ -19,45 +19,28 @@ const HEIGHT = Dimensions.get("window").height
 
 const Home = ({ route, navigation }) => {
 
-  const [modalVisible, setModalVisible] = useState(true);
-  const [modalVisible2, setModalVisible2] = useState(false);
-
-  const [email, setEmail] = useState('') //email = nickname: tên để đăng nhập
-  // const [password, setPassword] = useState('')
-  const [userName, setUserName] = useState('')
-  const [country, setCountry] = useState('');
-  //lưu trên firebase là value
-  // const [stars, setStars] = useState(null)
-
-  const [contact, setContact] = useState('')
-  // const [facebook, setFacebook] = useState('')
-  const [game1Record, setgame1Record] = useState('')
-  const [game2Record, setgame2Record] = useState('')
-
-  const [star, setStar] = useState('')
-
-  // const [id, setId] = useState(null)
   const [userId, setUserId] = useState('')
   const [data, setData] = useState([])
   const [data1, setData1] = useState([]) //chuyển mảng đảo ngược xuống data1 Để tránh trường hợp bị refresh thì mảng ko đc đảo ngược
 
-  const [isModal1, setIsModal1] = useState(false);
 
   const [dayTimeIndexForKey, setDayTimeIndexForKey] = useState(1) //để tìm tên khi nhấn nút search
 
   const [dayTime, setDayTime] = useState('20220222'); //Để mặc định là  1 ngày nào đó trong quá khứ để chạy ok
 
+  const [keyAdmindTrueFirebase, setKeyAdmindTrueFirebase] = useState(false)
+  const [modalGivePoints, setModalGivePoints] = useState(false)
+  const [modalGivePointsId, setModalGivePointsId] = useState(false)
+
+  const [userIdToGivePoints, setUserIdToGivePoints] = useState(false)
+  const [userIdToGivePointsName, setUserIdToGivePointsName] = useState(false)
+  const [starsOfUserforGive, setStarsOfUserforGive] = useState(null)
+
+  const [countFordetectUserIdForView, setCountFordetectUserIdForView] = useState(2)
+
+  
 
 
-  useEffect(() => {
-    setTimeout(() => {
-      setModalVisible(false)
-    }, 500);
-  }, [])
-
-  //   useEffect(() => {
-  //     console.log("dataFindUser: " ,dataFindUser)
-  //   }, [dataFindUser])
 
   useEffect(() => {
     checkUserEmail()
@@ -77,57 +60,10 @@ const Home = ({ route, navigation }) => {
 
   useEffect(() => {
     if (userId != false) {
-      getStars();
-      // getDayReviewLsLv1();
-      // get_DATA()
+      get_DATA_Users()
     }
   }, [userId]);
 
-  function getStars() {
-    firebase.database().ref(`users/${userId}/stars`).once('value', snapshot => {
-      snapshot.val() !== null && setStar(snapshot.val());
-    });
-  }
-
-
-
-  useEffect(() => {
-    userId != '' && getUserInfor()
-    setTimeout(() => {
-      userId != '' && get_DATA_Users()
-    }, 500);
-    userId != '' && firebase.database().ref(`users/${userId}/starUp`).set(false) //cứ có userId là sét false lại khi vào tap personal này
-  }, [userId])
-  //Khi email thay đổi thì render lại thì get_DATA_Users mới hoạt động đúng ý định
-
-  function getUserInfor() {
-    if (userId) {
-      firebase.database().ref(`users/${userId}/contact`).on('value', snapshot => {
-        snapshot.val() !== null && setContact(snapshot.val());
-      });
-      firebase.database().ref(`users/${userId}/country`).on('value', snapshot => {
-        snapshot.val() !== null && setCountry(snapshot.val());
-      });
-      firebase.database().ref(`users/${userId}/game1Record`).on('value', snapshot => {
-        snapshot.val() !== null && setgame1Record(snapshot.val());
-      });
-      firebase.database().ref(`users/${userId}/game2Record`).on('value', snapshot => {
-        snapshot.val() !== null && setgame2Record(snapshot.val());
-      });
-      // firebase.database().ref(`users/${userId}/facebook`).on('value', snapshot => {
-      //     snapshot.val() !== null && setFacebook(snapshot.val());
-      // });
-      firebase.database().ref(`users/${userId}/email`).on('value', snapshot => {
-        snapshot.val() !== null && setEmail(snapshot.val());
-      });
-      // firebase.database().ref(`users/${userId}/stars`).once('value', snapshot => { //để star là once vì mỗi lần vào profile sẽ refresh nên ko sợ ko cập nhật
-      //     snapshot.val() !== null && setStars(snapshot.val());
-      // });
-      firebase.database().ref(`users/${userId}/userName`).on('value', snapshot => {
-        snapshot.val() !== null && setUserName(snapshot.val());
-      });
-    }
-  }
 
   //Lấy danh sách người dùng không quá 30 người
   //thu bớt list hiển thị dữ liệu firebase xuống ít hơn 50 bằng set limitToFirst(50)
@@ -147,9 +83,8 @@ const Home = ({ route, navigation }) => {
           userName: childData.userName,
           contact: childData.contact,
           // facebook: childData.facebook,
-          game1Record: childData.game1Record,
-          game2Record: childData.game2Record,
           stars: childData.stars,
+          userIdFirebase: childData.userId,
         });
       });
       // console.log(array)
@@ -165,40 +100,12 @@ const Home = ({ route, navigation }) => {
     setData1([...new Set(new_arr)].reverse());
   }, [data])
 
-  //Search Lấy dữ liệu tên người dùng bằng tên có đc do nhập ở input
-  const get_User = (userName) => {
-    let query = firebase.database().ref('users/')
-      .orderByChild('userName') //child để so sánh dùng với startAt và endAt
-      .startAt(`${userName}`)// sàng lọc các giá trị lớn hơn theo bảng kí tự mã code nếu là chuỗi, nếu số thì lớn hơn số đã cho. Ở đây "1" là chuỗi
-      .limitToFirst(3); //Giới hạn kết quả là 3
-
-    query.on('value', function (snapshot) {
-      let array = [];
-
-      snapshot.forEach(function (childSnapshot) {
-        var childData = childSnapshot.val();
-        array.push({
-          id: childSnapshot.key,
-          country: childData.country,
-          userName: childData.userName,
-          contact: childData.contact,
-          // facebook: childData.facebook,
-          stars: childData.stars,
-        });
-      });
-      // console.log(array)
-      setDataFindUser(array)
-    });
-  }
-
-
 
   //run when start (at page first )  //set dayTimeIndexForKey = 2 (by hand) in firebase and it run !
   useEffect(() => {
     let toDay = moment().format('YYYYMMDD') //Để bỏ bớt hh:mm:ss
     setDayTime(toDay);
     userId != '' && getDayTime();
-    //todayDoneHome
   }, [userId]);
 
   function getDayTime() {
@@ -209,7 +116,7 @@ const Home = ({ route, navigation }) => {
       !!snapshot.val() !== false && setDayTimeIndexForKey(snapshot.val());
     });
   }
-  
+
   // Logic nếu không cùng ngày set lại dữ liệu ngày là Today và các giá trị false hết
   useEffect(() => {
     let toDay = moment().format('YYYYMMDD') //Để bỏ bớt hh:mm:ss
@@ -222,19 +129,48 @@ const Home = ({ route, navigation }) => {
   function updateDayTime() {
     setDayTime(moment().format('YYYYMMDD'))
     firebase.database().ref(`users/dayTime`).set(moment().format('YYYYMMDD'));
+    firebase.database().ref(`users/${userId}/keyAdmindTrue`).set(false);
     firebase.database().ref(`users/dayTimeIndexForKey`).set(2); // update for new day and one divice from user can put another key
-
     // console.log('########### line 96 updateDataBase "true"')
   }
+
   //UPDATE key Admind
   useEffect(() => {
-    let keyAdmind = Math.floor(Math.random()*1000000)
+    let keyAdmind = Math.floor(Math.random() * 1000000)
     // console.log('keyAdmind', keyAdmind)
     if (dayTimeIndexForKey == 2) { //only need this condition!
       firebase.database().ref(`users/keyAdmind`).set(keyAdmind);
       firebase.database().ref(`users/dayTimeIndexForKey`).set(3); // set 3 then another divice from user can't put over another key!
     }
   }, [dayTimeIndexForKey]);
+
+
+  useEffect(() => {
+    if (keyAdmindTrueFirebase) {
+      console.log('keyAdmind', keyAdmindTrueFirebase);
+    }
+  }, [keyAdmindTrueFirebase]);
+
+
+  //it's important so i leave it alone here
+  useEffect(() => {
+    firebase.database().ref(`users/${userId}/keyAdmindTrue`).on('value', snapshot => { //need "on" so it's can get the update value
+      !!snapshot.val() !== false && setKeyAdmindTrueFirebase(snapshot.val());
+    });
+    firebase.database().ref(`users/${userId}/userIdToGivePointsForView`).on('value', snapshot => { //need "on" so it's can get the update value
+      !!snapshot.val() !== false && setModalGivePointsId(snapshot.val());
+    });
+  }, [userId, countFordetectUserIdForView]);
+
+  useEffect(() => {
+    console.log('modalGivePointsId', modalGivePointsId);
+    if (modalGivePointsId != 'none') {
+      firebase.database().ref(`users/${modalGivePointsId}/userName`).once('value', snapshot => { 
+        !!snapshot.val() !== false && setUserIdToGivePointsName(snapshot.val());
+      });
+      setModalGivePoints(true)
+    }
+  }, [modalGivePointsId, countFordetectUserIdForView]);
 
 
 
@@ -244,12 +180,11 @@ const Home = ({ route, navigation }) => {
 
 
   return (
-    <SafeAreaView style={[styles.container, { justifyContent: 'center', alignItems: 'center',  }]}>
+    <SafeAreaView style={[styles.container, { justifyContent: 'center', alignItems: 'center', }]}>
       <View>
-        <View style={{ marginVertical: 5, flexDirection: 'row', backgroundColor: '#fff', height: HEIGHT*0.04, justifyContent: 'center', alignItems: 'center', }}>
+        <View style={{ marginVertical: 5, flexDirection: 'row', backgroundColor: '#fff', height: HEIGHT * 0.04, justifyContent: 'center', alignItems: 'center', }}>
           <TouchableOpacity
             onPress={() => {
-              // setModalVisible(true)
               // setLessonInModal(info)
               navigation.navigate('Personnal');
             }}
@@ -282,18 +217,19 @@ const Home = ({ route, navigation }) => {
                     key={indx * Math.random()}
                     style={{ height: HEIGHT * 0.07, backgroundColor: '#0f0', width: WIDTH * 0.485, marginLeft: WIDTH * 0.01, marginVertical: 5, }}
                     onPress={() => {
-                      // setModalVisible(true)
-                      // setLessonInModal(info)
-                      navigation.navigate('Personnal');
+                      console.log('info.useridfirebase', info.userIdFirebase)
+                      if (keyAdmindTrueFirebase) {
+                        firebase.database().ref(`users/userIdToGivePointsForView`).set(info.userIdFirebase)
+                        setStarsOfUserforGive(info.stars)
+                      }
                     }}
                   >
                     <Text style={{ color: '#00f', fontSize: HEIGHT * 0.019, fontWeight: 'bold', margin: 1, flexWrap: 'wrap', paddingTop: 3, marginHorizontal: 8, textAlign: 'center' }}>
-                      {` ${info.userName}`}
+                      {` ${info.userName}: ${info.stars} điểm`}
                     </Text>
                     <Text style={{ color: '#00f', fontSize: HEIGHT * 0.019, fontWeight: 'bold', margin: 1, flexWrap: 'wrap', paddingTop: 3, marginHorizontal: 8, textAlign: 'center' }}>
                       {` ${info.country}`}
                     </Text>
-
                   </TouchableOpacity>
                 )
               })
@@ -301,6 +237,148 @@ const Home = ({ route, navigation }) => {
 
           </View>
         </ScrollView>
+
+
+        {/* Hiển thị modal chấm điểm */}
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={modalGivePoints}
+        >
+          <View style={{ width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)', }}>
+            {/* <View style={{ width: '90%', height: HEIGHT * 0.35, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff', borderRadius: 5, }}>
+            </View> */}
+            <View style={{ width: '90%', height: HEIGHT*0.7, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)', borderRadius: 10, }}>
+              {/* Nút back */}
+              <TouchableOpacity
+                onPress={() => {
+                  firebase.database().ref(`users/userIdToGivePointsForView`).set('none')
+                  setModalGivePointsId('none') //để fix hiển thị ở máy admind!!
+                  setModalGivePoints(false)
+                  setCountFordetectUserIdForView(countFordetectUserIdForView + 1)
+                }}
+                style={{ height: HEIGHT * 0.1, width: WIDTH * 0.85, justifyContent: 'center', position: 'absolute', top: 0, left: 0, }}
+              >
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <Image
+                    allowFontScaling={false}
+                    source={require('./imges/BackButton_rbg1.png')}
+                    style={{ width: WIDTH * 0.04, height: WIDTH * 0.05, marginLeft: WIDTH * 0.05, marginTop: HEIGHT*0.01, tintColor: '#000', }}
+                    resizeMode='stretch'
+                  />
+                  <View style= {{justifyContent: 'center', alignItems: 'center', flex: 1,  }}>
+                    <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#fff', position: 'relative', top: HEIGHT*0.01, left: -WIDTH*0.01, }}>Bảng chấm điểm - {userIdToGivePointsName}</Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+
+
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', marginTop: HEIGHT*0.05,  }}>
+                <TouchableOpacity
+                  onPress={() => {
+                    firebase.database().ref(`users/${modalGivePointsId}/stars`).set(starsOfUserforGive + 1)
+                    setModalGivePoints(false)
+                    Alert.alert(`${userIdToGivePointsName} đã nhận thêm 1 điểm.`)
+                  }}
+                  style={{ width: WIDTH / 4.5, height: WIDTH / 4.5, margin: 10, backgroundColor: '#ff0', alignItems: 'center', justifyContent: 'center', borderRadius: 10, }}
+                >
+                  <Text style={{fontSize: 17, fontWeight: 'bold', color: '#000', }}>1</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => {
+                    firebase.database().ref(`users/${modalGivePointsId}/stars`).set(starsOfUserforGive + 2)
+                    console.log('starsOfUserforGive + 2', starsOfUserforGive + 2)
+                    setModalGivePoints(false)
+                    Alert.alert(`${userIdToGivePointsName} đã nhận thêm 2 điểm.`)
+                  }}
+                  style={{ width: WIDTH / 4.5, height: WIDTH / 4.5, margin: 10, backgroundColor: '#ff0', alignItems: 'center', justifyContent: 'center', borderRadius: 10, }}
+                >
+                  <Text style={{fontSize: 17, fontWeight: 'bold', color: '#000', }}>2</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => {
+                    firebase.database().ref(`users/${modalGivePointsId}/stars`).set(starsOfUserforGive + 3)
+                    setModalGivePoints(false)
+                    Alert.alert(`${userIdToGivePointsName} đã nhận thêm 3 điểm.`)
+                  }}
+                  style={{ width: WIDTH / 4.5, height: WIDTH / 4.5, margin: 10, backgroundColor: '#ff0', alignItems: 'center', justifyContent: 'center', borderRadius: 10, }}
+                >
+                  <Text style={{fontSize: 17, fontWeight: 'bold', color: '#000', }}>3</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => {
+                    firebase.database().ref(`users/${modalGivePointsId}/stars`).set(starsOfUserforGive + 4)
+                    setModalGivePoints(false)
+                    Alert.alert(`${userIdToGivePointsName} đã nhận thêm 4 điểm.`)
+                  }}
+                  style={{ width: WIDTH / 4.5, height: WIDTH / 4.5, margin: 10, backgroundColor: '#ff0', alignItems: 'center', justifyContent: 'center', borderRadius: 10, }}
+                >
+                  <Text style={{fontSize: 17, fontWeight: 'bold', color: '#000', }}>4</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => {
+                    firebase.database().ref(`users/${modalGivePointsId}/stars`).set(starsOfUserforGive + 5)
+                    setModalGivePoints(false)
+                    Alert.alert(`${userIdToGivePointsName} đã nhận thêm 5 điểm.`)
+                  }}
+                  style={{ width: WIDTH / 4.5, height: WIDTH / 4.5, margin: 10, backgroundColor: '#ff0', alignItems: 'center', justifyContent: 'center', borderRadius: 10, }}
+                >
+                  <Text style={{fontSize: 17, fontWeight: 'bold', color: '#000', }}>5</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => {
+                    firebase.database().ref(`users/${modalGivePointsId}/stars`).set(starsOfUserforGive + 6)
+                    setModalGivePoints(false)
+                    Alert.alert(`${userIdToGivePointsName} đã nhận thêm 6 điểm.`)
+                  }}
+                  style={{ width: WIDTH / 4.5, height: WIDTH / 4.5, margin: 10, backgroundColor: '#ff0', alignItems: 'center', justifyContent: 'center', borderRadius: 10, }}
+                >
+                  <Text style={{fontSize: 17, fontWeight: 'bold', color: '#000', }}>6</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => {
+                    firebase.database().ref(`users/${modalGivePointsId}/stars`).set(starsOfUserforGive + 7)
+                    setModalGivePoints(false)
+                    Alert.alert(`${userIdToGivePointsName} đã nhận thêm 7 điểm.`)
+                  }}
+                  style={{ width: WIDTH / 4.5, height: WIDTH / 4.5, margin: 10, backgroundColor: '#ff0', alignItems: 'center', justifyContent: 'center', borderRadius: 10, }}
+                >
+                  <Text style={{fontSize: 17, fontWeight: 'bold', color: '#000', }}>7</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => {
+                    firebase.database().ref(`users/${modalGivePointsId}/stars`).set(starsOfUserforGive + 8)
+                    setModalGivePoints(false)
+                    Alert.alert(`${userIdToGivePointsName} đã nhận thêm 8 điểm.`)
+                  }}
+                  style={{ width: WIDTH / 4.5, height: WIDTH / 4.5, margin: 10, backgroundColor: '#ff0', alignItems: 'center', justifyContent: 'center', borderRadius: 10, }}
+                >
+                  <Text style={{fontSize: 17, fontWeight: 'bold', color: '#000', }}>8</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => {
+                    firebase.database().ref(`users/${modalGivePointsId}/stars`).set(starsOfUserforGive + 9)
+                    setModalGivePoints(false)
+                    Alert.alert(`${userIdToGivePointsName} đã nhận thêm 9 điểm.`)
+                  }}
+                  style={{ width: WIDTH / 4.5, height: WIDTH / 4.5, margin: 10, backgroundColor: '#ff0', alignItems: 'center', justifyContent: 'center', borderRadius: 10, }}
+                >
+                  <Text style={{fontSize: 17, fontWeight: 'bold', color: '#000', }}>9</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+          </View>
+        </Modal>
+
       </View>
     </SafeAreaView>
   );
