@@ -3,7 +3,6 @@ import { Dimensions, Text, Modal, FlatList, View, Image, TouchableOpacity, TextI
 
 import auth from '@react-native-firebase/auth';
 import { firebase } from '@react-native-firebase/database';
-import database from '@react-native-firebase/database';
 
 import moment from 'moment-timezone';
 
@@ -20,6 +19,18 @@ const HEIGHT = Dimensions.get("window").height
 const Home = ({ route, navigation }) => {
 
   const [userId, setUserId] = useState('')
+  const [tongQuy, setTongQuy] = useState('')
+  const [tongThuong, setTongThuong] = useState('')
+  const [tongQuyInput, setTongQuyInput] = useState('')
+  const [modalTongQuyTien, setModalTongQuyTien] = useState(false)
+
+  const [modalCongTienThuong, setModalCongTienThuong] = useState(false)
+  const [congTienThuongId, setCongTienThuongId] = useState('')
+  const [congTienThuongName, setCongTienThuongName] = useState('')
+  const [congTienThuongIdSoTien, setCongTienThuongIdSoTien] = useState('')
+  const [congTienThuongInput, setCongTienThuongInput] = useState('')
+
+
   const [data, setData] = useState([])
   const [data1, setData1] = useState([]) //chuyển mảng đảo ngược xuống data1 Để tránh trường hợp bị refresh thì mảng ko đc đảo ngược
 
@@ -30,9 +41,8 @@ const Home = ({ route, navigation }) => {
 
   const [keyAdmindTrueFirebase, setKeyAdmindTrueFirebase] = useState(false)
   const [modalGivePoints, setModalGivePoints] = useState(false)
-  const [modalGivePointsId, setModalGivePointsId] = useState(false)
+  const [modalGivePointsId, setModalGivePointsId] = useState('none')
 
-  const [userIdToGivePoints, setUserIdToGivePoints] = useState(false)
   const [userIdToGivePointsName, setUserIdToGivePointsName] = useState(false)
   const [starsOfUserforGive, setStarsOfUserforGive] = useState(null)
 
@@ -62,8 +72,14 @@ const Home = ({ route, navigation }) => {
     if (userId != false) {
       get_DATA_Users()
     }
+    //lấy luôn data tổng thưởng, tổng quỹ
+    firebase.database().ref(`users/tongQuy`).on('value', snapshot => { //need "on" so it's can get the update value
+      !!snapshot.val() !== false && setTongQuy(snapshot.val());
+    });
+    firebase.database().ref(`users/tongThuong`).on('value', snapshot => { //need "on" so it's can get the update value
+      !!snapshot.val() !== false && setTongThuong(snapshot.val());
+    });
   }, [userId]);
-
 
   //Lấy danh sách người dùng không quá 30 người
   //thu bớt list hiển thị dữ liệu firebase xuống ít hơn 50 bằng set limitToFirst(50)
@@ -72,7 +88,6 @@ const Home = ({ route, navigation }) => {
       .orderByChild('stars') //child để tìm các giá trị so sánh
       // .startAt(0) // sàng lọc các giá trị lớn hơn theo bảng kí tự mã code nếu là chuỗi, nếu số thì lớn hơn số đã cho. Ở đây "1" là chuỗi
       .limitToLast(30); //Giới hạn kết quả là 50/ limitToLast: lấy các giá trị cuối cùng trở lại ( nếu để giá trị 1 thì là lấy giá trị lớn nhất)
-
     query.on('value', function (snapshot) {
       let array = [];
 
@@ -85,6 +100,7 @@ const Home = ({ route, navigation }) => {
           // facebook: childData.facebook,
           stars: childData.stars,
           userIdFirebase: childData.userId,
+          tienThuong: childData.tienThuong,
         });
       });
       // console.log(array)
@@ -121,7 +137,7 @@ const Home = ({ route, navigation }) => {
   useEffect(() => {
     let toDay = moment().format('YYYYMMDD') //Để bỏ bớt hh:mm:ss
     // console.log('daytime', dayTime)
-    if (`${dayTime}` != '20220222' && `${dayTime}` != `${toDay}` && !!userId != false) { // Nếu ngày lưu trên firebase tại khác ngày hiện (Không cùng ngày)
+    if (`${dayTime}` != '20220222' && `${dayTime}` != `${toDay}` && !!userId != false) { 
       updateDayTime();
     }
   }, [dayTime]);
@@ -146,10 +162,18 @@ const Home = ({ route, navigation }) => {
 
 
   useEffect(() => {
-    if (keyAdmindTrueFirebase) {
-      console.log('keyAdmind', keyAdmindTrueFirebase);
+    // console.log('data', data[8].tienThuong);
+    let tongThuong = 0
+    if (data.length > 0) {
+      for (let i = 0; i < data.length; i++) {
+        if (data[i].tienThuong) {
+          tongThuong = tongThuong + data[i].tienThuong
+        }
+      }
     }
-  }, [keyAdmindTrueFirebase]);
+    setTongThuong(tongThuong)
+    console.log('tongthuongzzzzaaa', tongThuong)
+  }, [data]);
 
 
   //it's important so i leave it alone here
@@ -163,7 +187,7 @@ const Home = ({ route, navigation }) => {
   }, [userId, countFordetectUserIdForView]);
 
   useEffect(() => {
-    console.log('modalGivePointsId', modalGivePointsId);
+    // console.log('modalGivePointsId, modalToGivePoint', modalGivePointsId, modalGivePoints);
     if (modalGivePointsId != 'none') {
       firebase.database().ref(`users/${modalGivePointsId}/userName`).once('value', snapshot => { 
         !!snapshot.val() !== false && setUserIdToGivePointsName(snapshot.val());
@@ -171,6 +195,16 @@ const Home = ({ route, navigation }) => {
       setModalGivePoints(true)
     }
   }, [modalGivePointsId, countFordetectUserIdForView]);
+
+  //cập nhật tổng quỹ tổng thưởng từ firebase
+  useEffect(() => {
+    firebase.database().ref(`users/tongQuy`).on('value', snapshot => { 
+      !!snapshot.val() !== false && setTongQuy(snapshot.val());
+    });
+    firebase.database().ref(`users/tongThuong`).on('value', snapshot => { 
+      !!snapshot.val() !== false && setTongThuong(snapshot.val());
+    });
+  }, []);
 
 
 
@@ -182,53 +216,115 @@ const Home = ({ route, navigation }) => {
   return (
     <SafeAreaView style={[styles.container, { justifyContent: 'center', alignItems: 'center', }]}>
       <View>
-        <View style={{ marginVertical: 5, flexDirection: 'row', backgroundColor: '#fff', height: HEIGHT * 0.04, justifyContent: 'center', alignItems: 'center', }}>
+        <View style={{
+          marginVertical: 5, flexDirection: 'row', backgroundColor: '#fff', height: HEIGHT * 0.04,
+          justifyContent: 'center', alignItems: 'center',
+        }}>
           <TouchableOpacity
             onPress={() => {
               // setLessonInModal(info)
               navigation.navigate('Personnal');
             }}
           >
-            <Text style={{ width: WIDTH * 0.33, fontSize: 15, fontWeight: 'bold', color: '#00f', }}> You: </Text>
+            <Text allowFontScaling={false} style={{ width: WIDTH * 0.33, fontSize: 15, fontWeight: 'bold', color: '#00f', }}>
+              {`  You`}
+            </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity>
-            <Text style={{ width: WIDTH * 0.33, fontSize: 14, fontWeight: 'bold', color: '#00f', }}>Tổng quỹ: </Text>
+          <TouchableOpacity
+            onPress={()=> {
+              setModalTongQuyTien(true)
+            }}          
+          >
+            <Text allowFontScaling={false} style={{
+              width: WIDTH * 0.33, fontSize: 14, fontWeight: 'bold',
+              color: tongQuy / 1 > tongThuong / 1 ? '#00f' : '#f00',
+            }}>
+              Tổng quỹ: {tongQuy}k
+            </Text>
           </TouchableOpacity>
-          <TouchableOpacity>
-            <Text style={{ width: WIDTH * 0.33, fontSize: 14, fontWeight: 'bold', color: '#00f', }}>Tổng thưởng: </Text>
+          <TouchableOpacity
+            ononPress={()=> {
+              setModalTongQuyTien(true)
+            }}          
+          >
+            <Text allowFontScaling={false} style={{ width: WIDTH * 0.33, fontSize: 14, fontWeight: 'bold', color: '#00f', }}>
+              Tổng thưởng: 
+            {tongThuong}k</Text>
           </TouchableOpacity>
         </View>
 
 
-        <ScrollView style={[styles.scrollView, { marginBottom: 5, width: WIDTH * 0.999, }]}>
+        <ScrollView style={{ marginBottom: 5, width: WIDTH * 0.999, backgroundColor: '#fff', }}>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', }}>
-            {/* <TouchableOpacity style={{ height: HEIGHT * 0.075, backgroundColor: '#0f0', width: WIDTH * 0.499, marginLeft: WIDTH * 0.01, marginVertical: 5, }}>
-              <Text>hello world</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={{ height: HEIGHT * 0.075, backgroundColor: '#0ff', width: WIDTH * 0.45, marginVertical: 5, }}>
-              <Text>hello world</Text>
-            </TouchableOpacity> */}
-
             {
               data1.map((info, indx) => {
                 return (
                   <TouchableOpacity
                     key={indx * Math.random()}
-                    style={{ height: HEIGHT * 0.07, backgroundColor: '#0f0', width: WIDTH * 0.485, marginLeft: WIDTH * 0.01, marginVertical: 5, }}
+                    style={{
+                      height: HEIGHT * 0.07, backgroundColor: (info.tienThuong) / 1 < 50 ? '#fff' : '#ADFF2F', width: WIDTH * 0.485,
+                      marginLeft: WIDTH * 0.01, marginVertical: 5, borderRadius: 3, elevation: 5, borderColor: '#333', borderWidth:0.5,
+                    }}
                     onPress={() => {
-                      console.log('info.useridfirebase', info.userIdFirebase)
                       if (keyAdmindTrueFirebase) {
-                        firebase.database().ref(`users/userIdToGivePointsForView`).set(info.userIdFirebase)
-                        setStarsOfUserforGive(info.stars)
+                        // firebase.database().ref(`users/userIdToGivePointsForView`).set(info.userIdFirebase)
+                        // setStarsOfUserforGive(info.stars)
+                        Alert.alert(
+                          '',
+                          'Chọn chức năng:',
+                          [
+                            {
+                              text: 'Cancel',
+                              onPress: () => console.log('Cancel Pressed'),
+                              style: 'cancel',
+                            },
+                            {
+                              text: 'Cộng tiền thưởng',
+                              onPress: () => {
+                                setCongTienThuongId(info.userIdFirebase)
+                                setCongTienThuongName(info.userName)
+                                setModalCongTienThuong(true)
+                                setCongTienThuongIdSoTien(info.tienThuong)
+                              },
+                              style: 'success',
+                            },
+                            {
+                              text: 'Chọn thành viên',
+                              onPress: () => {
+                                console.log('info.useridfirebase', info.userIdFirebase)
+                                if (keyAdmindTrueFirebase) {
+                                  firebase.database().ref(`users/userIdToGivePointsForView`).set(info.userIdFirebase)
+                                  setStarsOfUserforGive(info.stars)
+                                }
+                              },
+                              style: 'success',
+                            },
+                          ],
+                          {
+                            cancelable: true,
+                            onDismiss: () =>
+                              console.log(
+                                'This alert was dismissed by tapping outside of the alert dialog.',
+                              ),
+                          },
+                        );
                       }
                     }}
                   >
-                    <Text style={{ color: '#00f', fontSize: HEIGHT * 0.019, fontWeight: 'bold', margin: 1, flexWrap: 'wrap', paddingTop: 3, marginHorizontal: 8, textAlign: 'center' }}>
-                      {` ${info.userName}: ${info.stars} điểm`}
+                    <Text allowFontScaling={false} borderColor='#000' style={{
+                      color: '#006400', fontSize: HEIGHT * 0.019, fontWeight: 'bold', margin: 1, flexWrap: 'wrap',
+                      paddingTop: 3, marginHorizontal: 8, textAlign: 'center', 
+                      // textShadowOffset: { width: 0.1, height: 0.1 }, textShadowRadius: 0.5, textShadowColor: '#000',
+                    }}>
+                      {` ${info.userName}: ${info.stars} điểm.`}
                     </Text>
-                    <Text style={{ color: '#00f', fontSize: HEIGHT * 0.019, fontWeight: 'bold', margin: 1, flexWrap: 'wrap', paddingTop: 3, marginHorizontal: 8, textAlign: 'center' }}>
-                      {` ${info.country}`}
+                    <Text allowFontScaling={false} style={{
+                      color: '#006400', fontSize: HEIGHT * 0.019, fontWeight: 'bold',
+                      margin: 1, flexWrap: 'wrap', marginHorizontal: 8, textAlign: 'center',
+                      // textShadowOffset: { width: 0.1, height: 0.1 }, textShadowRadius: 0.5, textShadowColor: '#000',
+                    }}>
+                      {`Tiền thưởng: ${(info.tienThuong)/1}k (${info.country})`}
                     </Text>
                   </TouchableOpacity>
                 )
@@ -246,9 +342,12 @@ const Home = ({ route, navigation }) => {
           visible={modalGivePoints}
         >
           <View style={{ width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)', }}>
-            {/* <View style={{ width: '90%', height: HEIGHT * 0.35, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff', borderRadius: 5, }}>
-            </View> */}
-            <View style={{ width: '90%', height: HEIGHT*0.7, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)', borderRadius: 10, }}>
+            <View 
+              style={{
+                width: '90%', height: HEIGHT * 0.7, justifyContent: 'center',
+                alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)', borderRadius: 10,
+              }}
+            >
               {/* Nút back */}
               <TouchableOpacity
                 onPress={() => {
@@ -267,7 +366,12 @@ const Home = ({ route, navigation }) => {
                     resizeMode='stretch'
                   />
                   <View style= {{justifyContent: 'center', alignItems: 'center', flex: 1,  }}>
-                    <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#fff', position: 'relative', top: HEIGHT*0.01, left: -WIDTH*0.01, }}>Bảng chấm điểm - {userIdToGivePointsName}</Text>
+                    <Text allowFontScaling={false} style={{
+                      fontSize: 18, fontWeight: 'bold', color: '#fff',
+                      position: 'relative', top: HEIGHT * 0.01, left: -WIDTH * 0.01,
+                    }}>
+                      Bảng chấm điểm - {userIdToGivePointsName}
+                    </Text>
                   </View>
                 </View>
               </TouchableOpacity>
@@ -280,9 +384,12 @@ const Home = ({ route, navigation }) => {
                     setModalGivePoints(false)
                     Alert.alert(`${userIdToGivePointsName} đã nhận thêm 1 điểm.`)
                   }}
-                  style={{ width: WIDTH / 4.5, height: WIDTH / 4.5, margin: 10, backgroundColor: '#ff0', alignItems: 'center', justifyContent: 'center', borderRadius: 10, }}
+                  style={{
+                    width: WIDTH / 4.5, height: WIDTH / 4.5, margin: 10, backgroundColor: '#ff0', alignItems: 'center',
+                    justifyContent: 'center', borderRadius: 10,
+                  }}
                 >
-                  <Text style={{fontSize: 17, fontWeight: 'bold', color: '#000', }}>1</Text>
+                  <Text allowFontScaling={false} style={{fontSize: 17, fontWeight: 'bold', color: '#000', }}>1</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -292,9 +399,12 @@ const Home = ({ route, navigation }) => {
                     setModalGivePoints(false)
                     Alert.alert(`${userIdToGivePointsName} đã nhận thêm 2 điểm.`)
                   }}
-                  style={{ width: WIDTH / 4.5, height: WIDTH / 4.5, margin: 10, backgroundColor: '#ff0', alignItems: 'center', justifyContent: 'center', borderRadius: 10, }}
+                  style={{
+                    width: WIDTH / 4.5, height: WIDTH / 4.5, margin: 10, backgroundColor: '#ff0', alignItems: 'center',
+                    justifyContent: 'center', borderRadius: 10,
+                  }}
                 >
-                  <Text style={{fontSize: 17, fontWeight: 'bold', color: '#000', }}>2</Text>
+                  <Text allowFontScaling={false} style={{fontSize: 17, fontWeight: 'bold', color: '#000', }}>2</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -303,9 +413,12 @@ const Home = ({ route, navigation }) => {
                     setModalGivePoints(false)
                     Alert.alert(`${userIdToGivePointsName} đã nhận thêm 3 điểm.`)
                   }}
-                  style={{ width: WIDTH / 4.5, height: WIDTH / 4.5, margin: 10, backgroundColor: '#ff0', alignItems: 'center', justifyContent: 'center', borderRadius: 10, }}
+                  style={{
+                    width: WIDTH / 4.5, height: WIDTH / 4.5, margin: 10, backgroundColor: '#ff0', alignItems: 'center',
+                    justifyContent: 'center', borderRadius: 10,
+                  }}
                 >
-                  <Text style={{fontSize: 17, fontWeight: 'bold', color: '#000', }}>3</Text>
+                  <Text allowFontScaling={false} style={{fontSize: 17, fontWeight: 'bold', color: '#000', }}>3</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -314,9 +427,12 @@ const Home = ({ route, navigation }) => {
                     setModalGivePoints(false)
                     Alert.alert(`${userIdToGivePointsName} đã nhận thêm 4 điểm.`)
                   }}
-                  style={{ width: WIDTH / 4.5, height: WIDTH / 4.5, margin: 10, backgroundColor: '#ff0', alignItems: 'center', justifyContent: 'center', borderRadius: 10, }}
+                  style={{
+                    width: WIDTH / 4.5, height: WIDTH / 4.5, margin: 10, backgroundColor: '#ff0', alignItems: 'center',
+                    justifyContent: 'center', borderRadius: 10,
+                  }}
                 >
-                  <Text style={{fontSize: 17, fontWeight: 'bold', color: '#000', }}>4</Text>
+                  <Text allowFontScaling={false} style={{fontSize: 17, fontWeight: 'bold', color: '#000', }}>4</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -325,9 +441,12 @@ const Home = ({ route, navigation }) => {
                     setModalGivePoints(false)
                     Alert.alert(`${userIdToGivePointsName} đã nhận thêm 5 điểm.`)
                   }}
-                  style={{ width: WIDTH / 4.5, height: WIDTH / 4.5, margin: 10, backgroundColor: '#ff0', alignItems: 'center', justifyContent: 'center', borderRadius: 10, }}
+                  style={{
+                    width: WIDTH / 4.5, height: WIDTH / 4.5, margin: 10, backgroundColor: '#ff0', alignItems: 'center',
+                    justifyContent: 'center', borderRadius: 10,
+                  }}
                 >
-                  <Text style={{fontSize: 17, fontWeight: 'bold', color: '#000', }}>5</Text>
+                  <Text allowFontScaling={false} style={{fontSize: 17, fontWeight: 'bold', color: '#000', }}>5</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -336,9 +455,12 @@ const Home = ({ route, navigation }) => {
                     setModalGivePoints(false)
                     Alert.alert(`${userIdToGivePointsName} đã nhận thêm 6 điểm.`)
                   }}
-                  style={{ width: WIDTH / 4.5, height: WIDTH / 4.5, margin: 10, backgroundColor: '#ff0', alignItems: 'center', justifyContent: 'center', borderRadius: 10, }}
+                  style={{
+                    width: WIDTH / 4.5, height: WIDTH / 4.5, margin: 10, backgroundColor: '#ff0', alignItems: 'center',
+                    justifyContent: 'center', borderRadius: 10,
+                  }}
                 >
-                  <Text style={{fontSize: 17, fontWeight: 'bold', color: '#000', }}>6</Text>
+                  <Text allowFontScaling={false} style={{fontSize: 17, fontWeight: 'bold', color: '#000', }}>6</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -347,9 +469,12 @@ const Home = ({ route, navigation }) => {
                     setModalGivePoints(false)
                     Alert.alert(`${userIdToGivePointsName} đã nhận thêm 7 điểm.`)
                   }}
-                  style={{ width: WIDTH / 4.5, height: WIDTH / 4.5, margin: 10, backgroundColor: '#ff0', alignItems: 'center', justifyContent: 'center', borderRadius: 10, }}
+                  style={{
+                    width: WIDTH / 4.5, height: WIDTH / 4.5, margin: 10, backgroundColor: '#ff0', alignItems: 'center',
+                    justifyContent: 'center', borderRadius: 10,
+                  }}
                 >
-                  <Text style={{fontSize: 17, fontWeight: 'bold', color: '#000', }}>7</Text>
+                  <Text allowFontScaling={false} style={{fontSize: 17, fontWeight: 'bold', color: '#000', }}>7</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -358,9 +483,12 @@ const Home = ({ route, navigation }) => {
                     setModalGivePoints(false)
                     Alert.alert(`${userIdToGivePointsName} đã nhận thêm 8 điểm.`)
                   }}
-                  style={{ width: WIDTH / 4.5, height: WIDTH / 4.5, margin: 10, backgroundColor: '#ff0', alignItems: 'center', justifyContent: 'center', borderRadius: 10, }}
+                  style={{
+                    width: WIDTH / 4.5, height: WIDTH / 4.5, margin: 10, backgroundColor: '#ff0', alignItems: 'center',
+                    justifyContent: 'center', borderRadius: 10,
+                  }}
                 >
-                  <Text style={{fontSize: 17, fontWeight: 'bold', color: '#000', }}>8</Text>
+                  <Text allowFontScaling={false} style={{fontSize: 17, fontWeight: 'bold', color: '#000', }}>8</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -369,9 +497,12 @@ const Home = ({ route, navigation }) => {
                     setModalGivePoints(false)
                     Alert.alert(`${userIdToGivePointsName} đã nhận thêm 9 điểm.`)
                   }}
-                  style={{ width: WIDTH / 4.5, height: WIDTH / 4.5, margin: 10, backgroundColor: '#ff0', alignItems: 'center', justifyContent: 'center', borderRadius: 10, }}
+                  style={{
+                    width: WIDTH / 4.5, height: WIDTH / 4.5, margin: 10, backgroundColor: '#ff0', alignItems: 'center',
+                    justifyContent: 'center', borderRadius: 10,
+                  }}
                 >
-                  <Text style={{fontSize: 17, fontWeight: 'bold', color: '#000', }}>9</Text>
+                  <Text allowFontScaling={false} style={{fontSize: 17, fontWeight: 'bold', color: '#000', }}>9</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -380,6 +511,91 @@ const Home = ({ route, navigation }) => {
         </Modal>
 
       </View>
+
+      {/* Hiển thị modal cộng quỹ của Admind */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalTongQuyTien}
+        onRequestClose={() => {
+          setModalTongQuyTien(!modalTongQuyTien);
+        }}
+      >
+        <View style={{ width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.3)', }}>
+          <View 
+            style={{
+              width: '90%', height: HEIGHT * 0.35, justifyContent: 'center', alignItems: 'center',
+              backgroundColor: '#fff', borderRadius: 5,
+            }}
+          >
+            <TextInput allowFontScaling={false} autoCapitalize="none" value={tongQuyInput} onChangeText={setTongQuyInput} 
+            placeholder=' Nhập số tiền thêm vào tổng quỹ...'
+              require={true} style={{ fontSize: 16, color: '#333', width: 300, backgroundColor: 'rgba(0, 0, 0, 0.08)', marginBottom: 10, }}
+              placeholderTextColor={'#fff'}
+            />
+            <TouchableOpacity
+              style={{
+                width: 150, height: 38, borderColor: 'white', borderWidth: 1, backgroundColor: 'blue', borderRadius: 20,
+                justifyContent: 'center', alignItems: 'center', marginTop: 20
+              }}
+              onPress={() => {
+                if (!isNaN(tongQuyInput/1)) {
+                  setModalTongQuyTien(false)
+                  firebase.database().ref(`users/tongQuy`).set(tongQuy/1 + tongQuyInput/1)
+                  Alert.alert(`Đã cộng ${tongQuyInput/1}k vào tổng quỹ.`);
+                } else {
+                  Alert.alert(`Hãy nhập một số hoặc bỏ trống(nếu cộng 0k)!`);
+                }
+              }
+              }
+            >
+              <Text allowFontScaling={false} style={{ color: '#fff', fontSize: 15, marginHorizontal: '5.5%' }}>Submit</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Hiển thị modal cộng thưởng cho thành viên của Admind */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalCongTienThuong}
+        onRequestClose={() => {
+          setModalTongQuyTien(!modalCongTienThuong);
+        }}
+      >
+        <View style={{ width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.3)', }}>
+          <View style={{ width: '90%', height: HEIGHT * 0.35, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff', borderRadius: 5, }}>
+            <TextInput allowFontScaling={false} autoCapitalize="none" value={congTienThuongInput} onChangeText={setCongTienThuongInput} 
+            placeholder=' Nhập số tiền thưởng cho thành viên...'
+              require={true} style={{ fontSize: 16, color: '#333', width: 300, backgroundColor: 'rgba(0, 0, 0, 0.08)', marginBottom: 10, }}
+              placeholderTextColor={'#fff'}
+            />
+            <TouchableOpacity
+              style={{
+                width: 150, height: 38, borderColor: 'white', borderWidth: 1, backgroundColor: 'blue', borderRadius: 20,
+                justifyContent: 'center', alignItems: 'center', marginTop: 20
+              }}
+              onPress={() => {
+                if (!isNaN(congTienThuongInput/1) && congTienThuongId) {
+                  setModalCongTienThuong(false)
+                  firebase.database().ref(`users/${congTienThuongId}/tienThuong`).set(congTienThuongIdSoTien/1 + congTienThuongInput/1)
+                  Alert.alert(`${congTienThuongName} đã được cộng ${congTienThuongInput/1}k vào tổng tiền thưởng.`);
+                } else if (isNaN(congTienThuongInput/1)){
+                  Alert.alert(`Hãy nhập một số hoặc bỏ trống(nếu cộng 0k)!`);
+                } else {
+                  Alert.alert(`Có lỗi xảy ra, vui lòng thử lại sau hoặc báo với Admind!`);
+                }
+              }
+              }
+            >
+              <Text allowFontScaling={false} style={{ color: '#fff', fontSize: 15, marginHorizontal: '5.5%' }}>Submit</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+
     </SafeAreaView>
   );
 };
