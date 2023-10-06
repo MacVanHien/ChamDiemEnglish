@@ -30,7 +30,7 @@ export default function LogIn({ route, navigation }) {
     return (
         <View style={{width: '100%', height: '100%', backgroundColor: '#fff', justifyContent: 'center', alignItems: 'center'}}>
             <View style={{justifyContent: 'center', alignItems: 'center', width: '100%', height: 200 }}>
-                <Image source={require('./imges/iconTimeCalculator1.png')} style={{ margin: 5, width: W*0.4, height: W*0.4}} resizeMode="cover" />
+                <Image source={require('./imges/ic_launcher_round.png')} style={{ margin: 5, width: W*0.4, height: W*0.4}} resizeMode="cover" />
                 <Text
                     allowFontScaling={false}
                     style={{ fontStyle: 'italic', fontWeight: 'bold', marginBottom: H * 0.005, marginBottom: H*0.05, color: '#aaa', fontSize: 13 }}

@@ -34,9 +34,9 @@ const TermsOfUser = ({ route, navigation }) => {
                                 numberOfLines={1}
                                 adjustsFontSizeToFit
                                 style={{
-                                    paddingLeft: 0, fontSize: HEIGHT*0.022,
+                                    paddingLeft: 0, fontSize: HEIGHT*0.022, color: '#ccc',
                                 }}>
-                                {` Time Calculator `}
+                                {` Team English `}
                             </Text>
                         </View>
                     </TouchableOpacity>
@@ -46,16 +46,16 @@ const TermsOfUser = ({ route, navigation }) => {
                             setIsVietnamese(isVietnamese == 'flex' ? 'none' : 'flex');
                             setIsEnglish(isEnglish == 'flex' ? 'none' : 'flex');
                         }}
-                        style={{ borderWidth: 1, borderColor: '#0000FF', backgroundColor: '#0000FF', opacity: 0.9, width: HEIGHT*0.07, borderRadius: 20, margin: 7, textAlign: 'center', justifyContent: 'center', position: 'absolute', top: 0, right: 10, zIndex: 100 }}
+                        style={{ backgroundColor: '#fff', elevation: 5, opacity: 0.9, width: HEIGHT*0.07, borderRadius: 20, margin: 7, textAlign: 'center', justifyContent: 'center', position: 'absolute', top: 0, right: 10, zIndex: 100 }}
                     >
                         {isEnglish == 'flex' &&
-                            <Text allowFontScaling={false} style={{ fontSize: HEIGHT*0.022, color: 'white', paddingLeft: HEIGHT*0.022, }}>
-                                Vi
+                            <Text allowFontScaling={false} style={{ fontSize: HEIGHT*0.022, color: '#00f', paddingLeft: HEIGHT*0.022, }}>
+                                En
                             </Text>
                         }
                         {isVietnamese == 'flex' &&
-                            <Text allowFontScaling={false} style={{ fontSize: HEIGHT*0.022, color: 'white', paddingLeft: HEIGHT*0.022, }}>
-                                En
+                            <Text allowFontScaling={false} style={{ fontSize: HEIGHT*0.022, color: '#00f', paddingLeft: HEIGHT*0.022, }}>
+                                Vi
                             </Text>
                         }
                     </TouchableOpacity>
@@ -85,19 +85,19 @@ const TermsOfUser = ({ route, navigation }) => {
                     <ScrollView style={{ display: isEnglish }}>
                         <Text
                             allowFontScaling={false}
-                            style={{ width: WIDTH, fontSize: HEIGHT*0.02, paddingLeft: 38, paddingRight: 22, paddingTop: 62, fontWeight: 'bold' }}>PRIVACY POLICY</Text>
+                            style={{ width: WIDTH, fontSize: HEIGHT*0.02, paddingLeft: 38, paddingRight: 22, paddingTop: 62, fontWeight: 'bold',color: '#333', }}>PRIVACY POLICY</Text>
                         <Text
                             allowFontScaling={false}
-                            style={{ width: WIDTH, fontSize: HEIGHT*0.02, paddingLeft: 38, paddingRight: 22, paddingBottom: 120, paddingTop: 10 }}
+                            style={{ width: WIDTH, fontSize: HEIGHT*0.02, paddingLeft: 38, paddingRight: 22, paddingBottom: 120, paddingTop: 10, color: '#333', }}
                             selectable={true}
                         >{`                                    
-        Developer built the Time calculator app as free app contains ads . This SERVICE is provided by Developer [at no cost] and is intended for use as is.
+        Developer built the Team English app as free app contains ads . This SERVICE is provided by Developer [at no cost] and is intended for use as is.
         
         This page is used to inform visitors regarding [my/our] policies with the collection, use, and disclosure of Personal Information if anyone decided to use [my/our] Service.
         
         If you choose to use [my/our] Service, then you agree to the collection and use of information in relation to this policy. The Personal Information that [I/We] collect is used for providing and improving the Service. [I/We] will not use or share your information with anyone except as described in this Privacy Policy.
         
-        The terms used in this Privacy Policy have the same meanings as in our Terms and Conditions, which are accessible at Time calculator unless otherwise defined in this Privacy Policy.
+        The terms used in this Privacy Policy have the same meanings as in our Terms and Conditions, which are accessible at Team English unless otherwise defined in this Privacy Policy.
         
         
         Information Collection and Use
@@ -108,8 +108,6 @@ const TermsOfUser = ({ route, navigation }) => {
         
 
         Link to the privacy policy of third-party service providers used by the app
-
-        AdMob
 
         Log Data
         
@@ -154,7 +152,7 @@ const TermsOfUser = ({ route, navigation }) => {
         [I/We] may update our Privacy Policy from time to time. Thus, you are advised to review this page periodically for any changes. [I/We] will notify you of any changes by posting the new Privacy Policy on this page.
         
 
-        This policy is effective as of 2022-11-08
+        This policy is effective as of 2023-10-06
 
         
         Contact Us
@@ -168,19 +166,19 @@ const TermsOfUser = ({ route, navigation }) => {
                     <ScrollView style={{ display: isVietnamese }}>
                         <Text
                             allowFontScaling={false}
-                            style={{ width: WIDTH, fontSize: HEIGHT*0.022, paddingLeft: 38, paddingRight: 22, paddingTop: 62, fontWeight: 'bold' }}>CHÍNH SÁCH BẢO MẬT</Text>
+                            style={{ width: WIDTH, fontSize: HEIGHT*0.022, paddingLeft: 38, paddingRight: 22, paddingTop: 62, fontWeight: 'bold',color: '#333', }}>CHÍNH SÁCH BẢO MẬT</Text>
                         <Text
                             allowFontScaling={false}
-                            style={{ width: WIDTH, fontSize: HEIGHT*0.022, paddingLeft: 38, paddingRight: 22, paddingBottom: 120, paddingTop: 10 }}
+                            style={{ width: WIDTH, fontSize: HEIGHT*0.022, paddingLeft: 38, paddingRight: 22, paddingBottom: 120, paddingTop: 10, color: '#333', }}
                             selectable={true}
                         >{`                                    
-        Nhà phát triển đã xây dựng ứng dụng Time calculator dưới dạng ứng dụng miễn phí có chứa quảng cáo. DỊCH VỤ này do Nhà phát triển cung cấp [miễn phí] và được thiết kế để sử dụng như hiện tại.        
+        Nhà phát triển đã xây dựng ứng dụng Team English dưới dạng ứng dụng miễn phí có chứa quảng cáo. DỊCH VỤ này do Nhà phát triển cung cấp [miễn phí] và được thiết kế để sử dụng như hiện tại.        
         
         Trang này được sử dụng để thông báo cho khách truy cập về các chính sách của [của tôi / của chúng tôi] với việc thu thập, sử dụng và tiết lộ Thông tin Cá nhân nếu bất kỳ ai quyết định sử dụng Dịch vụ của [tôi / của chúng tôi].        
         
         Nếu bạn chọn sử dụng Dịch vụ [của tôi / của chúng tôi], nghĩa là bạn đồng ý với việc thu thập và sử dụng thông tin liên quan đến chính sách này. Thông tin Cá nhân mà [Tôi / Chúng tôi] thu thập được sử dụng để cung cấp và cải thiện Dịch vụ. [Tôi / Chúng tôi] sẽ không sử dụng hoặc chia sẻ thông tin của bạn với bất kỳ ai ngoại trừ được mô tả trong Chính sách Bảo mật này.
 
-        Các điều khoản được sử dụng trong Chính sách Bảo mật này có ý nghĩa tương tự như trong Điều khoản và Điều kiện của chúng tôi, có thể truy cập được tại Time calculator trừ khi được định nghĩa khác trong Chính sách Bảo mật này.
+        Các điều khoản được sử dụng trong Chính sách Bảo mật này có ý nghĩa tương tự như trong Điều khoản và Điều kiện của chúng tôi, có thể truy cập được tại Team English trừ khi được định nghĩa khác trong Chính sách Bảo mật này.
 
         
         Thu thập và sử dụng thông tin
@@ -191,8 +189,6 @@ const TermsOfUser = ({ route, navigation }) => {
 
 
         Liên kết đến chính sách bảo mật của các nhà cung cấp dịch vụ bên thứ ba được ứng dụng sử dụng
-
-        AdMob
 
         Dữ liệu nhật ký
 
@@ -237,7 +233,7 @@ const TermsOfUser = ({ route, navigation }) => {
         [Tôi / Chúng tôi] có thể cập nhật Chính sách Bảo mật của chúng tôi theo thời gian. Vì vậy, bạn nên xem lại trang này định kỳ để biết bất kỳ thay đổi nào. [Tôi / Chúng tôi] sẽ thông báo cho bạn về bất kỳ thay đổi nào bằng cách đăng Chính sách Bảo mật mới trên trang này.
         
         
-        Chính sách này có hiệu lực từ 2022-11-08
+        Chính sách này có hiệu lực từ 2022-10-06
         
 
         Liên hệ chúng tôi  

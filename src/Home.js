@@ -225,22 +225,24 @@ const Home = ({ route, navigation }) => {
               // setLessonInModal(info)
               navigation.navigate('Personnal');
             }}
+            style={{backgroundColor: '#fff', borderRightWidth: 2, borderColor: '#ccc', marginLeft: WIDTH*0.02, }}
           >
-            <Text allowFontScaling={false} style={{ width: WIDTH * 0.33, fontSize: 15, fontWeight: 'bold', color: '#00f', }}>
-              {`  You`}
+            <Text allowFontScaling={false} style={{ width: WIDTH * 0.3, fontSize: 15, fontWeight: 'bold', color: '#006400', }}>
+              {`You`}
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={()=> {
               setModalTongQuyTien(true)
-            }}          
+            }} 
+            style={{backgroundColor: '#fff', borderRightWidth: 2, borderColor: '#ccc', }}         
           >
             <Text allowFontScaling={false} style={{
               width: WIDTH * 0.33, fontSize: 14, fontWeight: 'bold',
-              color: tongQuy / 1 > tongThuong / 1 ? '#00f' : '#f00',
+              color: tongQuy / 1 > tongThuong / 1 ? '#006400' : '#f00',
             }}>
-              Tổng quỹ: {tongQuy}k
+              {` Tổng quỹ: ${tongQuy}k`}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -248,9 +250,9 @@ const Home = ({ route, navigation }) => {
               setModalTongQuyTien(true)
             }}          
           >
-            <Text allowFontScaling={false} style={{ width: WIDTH * 0.33, fontSize: 14, fontWeight: 'bold', color: '#00f', }}>
-              Tổng thưởng: 
-            {tongThuong}k</Text>
+            <Text allowFontScaling={false} style={{ width: WIDTH * 0.33, fontSize: 14, fontWeight: 'bold', color: '#006400', }}>
+              {` Tổng thưởng: ${tongThuong}k`}
+            </Text>
           </TouchableOpacity>
         </View>
 

@@ -290,7 +290,7 @@ export default function Personnal({ navigation }) {
                             }}>
                             <Text allowFontScaling={false}
                                 style={{
-                                    color: '#DAA520', textShadowColor: '#eee', textShadowOffset: { width: 1, height: 3 }, textShadowRadius: 5,
+                                    color: '#006400', textShadowColor: '#eee', textShadowOffset: { width: 1, height: 3 }, textShadowRadius: 5,
                                     fontSize: styles.textNomalBlue.fontSize + HEIGHT * 0.03, fontWeight: 'bold', textTransform: 'capitalize'
                                 }}>
                                 {`${getFirstLetters(userName)}`}
@@ -298,7 +298,7 @@ export default function Personnal({ navigation }) {
                         </View>
                         <Text allowFontScaling={false}
                             style={{
-                                textShadowColor: '#ff0', textShadowOffset: { width: 1, height: 3 }, textShadowRadius: 5, color: '#DAA520',
+                                textShadowColor: '#ff0', textShadowOffset: { width: 1, height: 3 }, textShadowRadius: 5, color: '#006400',
                                 fontWeight: 'bold', marginVertical: 10, fontSize: styles.textNomalBlue.fontSize + HEIGHT * 0.003,
                             }}>
                             {`${userName}`}
@@ -322,7 +322,7 @@ export default function Personnal({ navigation }) {
                             <Text allowFontScaling={false}
                                 style={{
                                     display: keyAdmindTrue ? 'flex' : 'none',
-                                    textShadowColor: '#ff0', textShadowOffset: { width: 1, height: 3 }, textShadowRadius: 5, color: '#00f',
+                                    textShadowColor: '#ff0', textShadowOffset: { width: 1, height: 3 }, textShadowRadius: 5, color: '#008000',
                                     fontWeight: 'bold', marginVertical: 10, fontSize: styles.textNomalBlue.fontSize + HEIGHT * 0.003,
                                 }}>
                                 {`Admind`}
@@ -337,7 +337,7 @@ export default function Personnal({ navigation }) {
                         {/* <Text allowFontScaling={false} style={{marginVertical: 2, marginHorizontal: 15, fontSize: styles.textNomalBlue.fontSize, }}> {`Facebook: ${facebook}`}</Text> */}
                         <Text allowFontScaling={false} style={{ marginVertical: 2, marginHorizontal: 15, fontSize: styles.textNomalBlue.fontSize, color: '#333', }}> {`Lời nhắn: ${contact}`}</Text>
                         <View style={{ flexDirection: 'row', marginHorizontal: 20, }}>
-                            <Text allowFontScaling={false} style={{ marginVertical: 2, fontSize: styles.textNomalBlue.fontSize, fontWeight: 'bold', color: '#DAA520', }}>{`Tiền thưởng: ${tienThuongUser}k`}</Text>
+                            <Text allowFontScaling={false} style={{ marginVertical: 2, fontSize: styles.textNomalBlue.fontSize, fontWeight: 'bold', color: '#006400', }}>{`Tiền thưởng: ${tienThuongUser}k`}</Text>
                         </View>
 
                         <TouchableOpacity
@@ -391,10 +391,10 @@ export default function Personnal({ navigation }) {
                                     borderRadius: 5, paddingVertical: 5, paddingHorizontal: 8,
                                 }}>
                                 <View style={{ flexDirection: 'row', flexWrap: 'wrap', }}>
-                                    <Text allowFontScaling={false} style={{ marginVertical: 2, fontSize: 15, fontWeight: 'bold', color: '#DAA520', }}>
+                                    <Text allowFontScaling={false} style={{ marginVertical: 2, fontSize: 15, fontWeight: 'bold', color: '#006400', }}>
                                         {`${index + 1}. ${item.userName}:`}
                                     </Text>
-                                    <Text allowFontScaling={false} style={{ marginVertical: 2, fontSize: 14, fontWeight: 'bold', color: '#DAA520', }}>
+                                    <Text allowFontScaling={false} style={{ marginVertical: 2, fontSize: 14, fontWeight: 'bold', color: '#006400', }}>
                                         {`    ${item.tienThuong}k (${item.country}),`}
                                     </Text>
                                 </View>
@@ -473,7 +473,7 @@ export default function Personnal({ navigation }) {
                             </View>
                             <Text allowFontScaling={false}
                                 style={{
-                                    color: '#DAA520', textShadowColor: '#ff0', textShadowOffset: { width: 1, height: 3 },
+                                    color: '#006400', textShadowColor: '#ff0', textShadowOffset: { width: 1, height: 3 },
                                     textShadowRadius: 5, fontWeight: 'bold', marginVertical: 10, fontSize: styles.textNomalBlue.fontSize,
                                 }}>
                                 {`${userName}`}
@@ -487,7 +487,7 @@ export default function Personnal({ navigation }) {
                             {/* <Text allowFontScaling={false} style={{ marginVertical: 3, marginHorizontal: 15, fontSize: styles.textNomalBlue.fontSize }}> {`Facebook: ${facebook}`}</Text> */}
                             <Text allowFontScaling={false} style={{ marginVertical: 3, marginHorizontal: 15, fontSize: styles.textNomalBlue.fontSize, color: '#333', }}> {`Lời nhắn: ${contact}`}</Text>
                             <View style={{ flexDirection: 'row', marginHorizontal: 15, }}>
-                                <Text allowFontScaling={false} style={{ marginVertical: 2, fontSize: styles.textNomalBlue.fontSize, fontWeight: 'bold', color: '#DAA520', }}>{`Tiền thưởng: ${tienThuongUser}k`}</Text>
+                                <Text allowFontScaling={false} style={{ marginVertical: 2, fontSize: styles.textNomalBlue.fontSize, fontWeight: 'bold', color: '#006400', }}>{`Tiền thưởng: ${tienThuongUser}k`}</Text>
                             </View>
 
                         </View>
@@ -496,14 +496,14 @@ export default function Personnal({ navigation }) {
                     <View style={{ height: '40%', width: '90%' }}>
                         <TextInput allowFontScaling={false} value={userName} onChangeText={setUserName} placeholder=' your name ...' placeholderTextColor={'#ccc'}
                             style={{
-                                marginVertical: 0, paddingVertical: 5, color: '#00f', paddingLeft: 8,
+                                marginVertical: 0, paddingVertical: 5, color: '#006400', paddingLeft: 8,
                                 fontSize: styles.textNomalBlue.fontSize, backgroundColor: 'rgba(0, 0, 0, 0.05)', marginBottom: 5,
                             }}
                         />
-                        {/* <TextInput allowFontScaling={false} value={facebook} onChangeText={setFacebook} style={{ marginVertical: 0, paddingVertical: 0, color: '#00f', 
+                        {/* <TextInput allowFontScaling={false} value={facebook} onChangeText={setFacebook} style={{ marginVertical: 0, paddingVertical: 0, color: '#006400', 
                         fontSize: styles.textNomalBlue.fontSize, }} placeholder='your facebook ...' placeholderTextColor={'#ccc'}></TextInput> */}
                         <TextInput allowFontScaling={false} value={contact} onChangeText={setContact}
-                            style={{ marginVertical: 0, paddingVertical: 5, color: '#00f', fontSize: styles.textNomalBlue.fontSize, backgroundColor: 'rgba(0, 0, 0, 0.05)', marginBottom: 5, paddingLeft: 8, }}
+                            style={{ marginVertical: 0, paddingVertical: 5, color: '#006400', fontSize: styles.textNomalBlue.fontSize, backgroundColor: 'rgba(0, 0, 0, 0.05)', marginBottom: 5, paddingLeft: 8, }}
                             placeholder=' Viết lời nhắn của bạn ...' placeholderTextColor={'#ccc'}
                         />
 
@@ -672,7 +672,7 @@ const styles = StyleSheet.create({
     },
     textNomalBlue: {
         fontSize: HEIGHT * 0.02,
-        color: '#00f',
+        color: '#006400',
         fontWeight: 'bold',
     },
     textSmall: {
@@ -806,7 +806,7 @@ const styles = StyleSheet.create({
         elevation: 5, //make shadow
     },
     textButtonInRow: {
-        color: '#00f',
+        color: '#006400',
         fontSize: HEIGHT * 0.021,
         marginHorizontal: '5%',
         fontWeight: 'bold',
@@ -825,7 +825,7 @@ const styles = StyleSheet.create({
         elevation: 5
     },
     textButtonQ: {
-        color: '#00f',
+        color: '#006400',
         fontSize: HEIGHT * 0.021,
         marginHorizontal: '5%',
         fontWeight: 'bold',
@@ -836,7 +836,7 @@ const styles = StyleSheet.create({
         height: 40,
         borderColor: '#fff',
         borderWidth: 1,
-        backgroundColor: '#00f',
+        backgroundColor: '#006400',
         borderRadius: 5,
         justifyContent: 'center',
         alignItems: 'center',
