@@ -23,6 +23,7 @@ const Home = ({ route, navigation }) => {
   const [tongThuong, setTongThuong] = useState('')
   const [tongQuyInput, setTongQuyInput] = useState('')
   const [modalTongQuyTien, setModalTongQuyTien] = useState(false)
+  const [soNguoiChamDiem, setSoNguoiChamDiem] = useState(false)
 
   const [modalCongTienThuong, setModalCongTienThuong] = useState(false)
   const [congTienThuongId, setCongTienThuongId] = useState('')
@@ -192,6 +193,9 @@ const Home = ({ route, navigation }) => {
       firebase.database().ref(`users/${modalGivePointsId}/userName`).once('value', snapshot => { 
         !!snapshot.val() !== false && setUserIdToGivePointsName(snapshot.val());
       });
+      firebase.database().ref(`users/${modalGivePointsId}/stars`).on('value', snapshot => { 
+        !!snapshot.val() !== false && setStarsOfUserforGive(snapshot.val());
+      });
       setModalGivePoints(true)
     }
   }, [modalGivePointsId, countFordetectUserIdForView]);
@@ -204,8 +208,17 @@ const Home = ({ route, navigation }) => {
     firebase.database().ref(`users/tongThuong`).on('value', snapshot => { 
       !!snapshot.val() !== false && setTongThuong(snapshot.val());
     });
+    firebase.database().ref(`users/soNguoiChamDiem`).on('value', snapshot => { 
+      !!snapshot.val() !== false && setSoNguoiChamDiem(snapshot.val()/1);
+    });
   }, []);
 
+
+  useEffect(() => {
+    if (modalGivePointsId == 'none'){
+      setModalGivePoints(false)
+    }
+  }, [modalGivePointsId])
 
 
 
@@ -297,7 +310,7 @@ const Home = ({ route, navigation }) => {
                                 console.log('info.useridfirebase', info.userIdFirebase)
                                 if (keyAdmindTrueFirebase) {
                                   firebase.database().ref(`users/userIdToGivePointsForView`).set(info.userIdFirebase)
-                                  setStarsOfUserforGive(info.stars)
+                                  // setStarsOfUserforGive(info.stars)
                                 }
                               },
                               style: 'success',
@@ -353,18 +366,44 @@ const Home = ({ route, navigation }) => {
               {/* Nút back */}
               <TouchableOpacity
                 onPress={() => {
-                  firebase.database().ref(`users/userIdToGivePointsForView`).set('none')
-                  setModalGivePointsId('none') //để fix hiển thị ở máy admind!!
-                  setModalGivePoints(false)
-                  setCountFordetectUserIdForView(countFordetectUserIdForView + 1)
+                  if (keyAdmindTrueFirebase){
+                    Alert.alert(
+                      '',
+                      'Thoát chọn thành viên?',
+                      [
+                        {
+                          text: 'Cancel',
+                          onPress: () => console.log('Cancel Pressed'),
+                          style: 'cancel',
+                        },
+                        {
+                          text: 'Ok',
+                          onPress: () => {
+                            firebase.database().ref(`users/userIdToGivePointsForView`).set('none')
+                            setModalGivePointsId('none') //để fix hiển thị ở máy admind!!
+                            setModalGivePoints(false)
+                            setCountFordetectUserIdForView(countFordetectUserIdForView + 1)
+                          },
+                          style: 'success',
+                        },
+                      ],
+                      {
+                        cancelable: true,
+                        onDismiss: () =>
+                          console.log(
+                            'This alert was dismissed by tapping outside of the alert dialog.',
+                          ),
+                      },
+                    );
+                  }
                 }}
-                style={{ height: HEIGHT * 0.1, width: WIDTH * 0.85, justifyContent: 'center', position: 'absolute', top: 0, left: 0, }}
+                style={{height: HEIGHT * 0.1, width: WIDTH * 0.9, justifyContent: 'center', position: 'absolute', top: 0, left: 0, }}
               >
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                   <Image
                     allowFontScaling={false}
                     source={require('./imges/BackButton_rbg1.png')}
-                    style={{ width: WIDTH * 0.04, height: WIDTH * 0.05, marginLeft: WIDTH * 0.05, marginTop: HEIGHT*0.01, tintColor: '#000', }}
+                    style={{ width: WIDTH * 0.04, height: WIDTH * 0.05, marginLeft: WIDTH * 0.05, marginTop: HEIGHT*0.01, tintColor: '#000', display: keyAdmindTrueFirebase? 'flex' : 'none', }}
                     resizeMode='stretch'
                   />
                   <View style= {{justifyContent: 'center', alignItems: 'center', flex: 1,  }}>
@@ -382,9 +421,12 @@ const Home = ({ route, navigation }) => {
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', marginTop: HEIGHT*0.05,  }}>
                 <TouchableOpacity
                   onPress={() => {
-                    firebase.database().ref(`users/${modalGivePointsId}/stars`).set(starsOfUserforGive + 1)
-                    setModalGivePoints(false)
-                    Alert.alert(`${userIdToGivePointsName} đã nhận thêm 1 điểm.`)
+                    if (!keyAdmindTrueFirebase){
+                      firebase.database().ref(`users/${modalGivePointsId}/stars`).set(starsOfUserforGive + 1)
+                      firebase.database().ref(`users/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
+                      setModalGivePoints(false)
+                      Alert.alert(`${userIdToGivePointsName} đã nhận thêm 1 điểm.`)
+                    }
                   }}
                   style={{
                     width: WIDTH / 4.5, height: WIDTH / 4.5, margin: 10, backgroundColor: '#ff0', alignItems: 'center',
@@ -396,10 +438,13 @@ const Home = ({ route, navigation }) => {
 
                 <TouchableOpacity
                   onPress={() => {
-                    firebase.database().ref(`users/${modalGivePointsId}/stars`).set(starsOfUserforGive + 2)
-                    console.log('starsOfUserforGive + 2', starsOfUserforGive + 2)
-                    setModalGivePoints(false)
-                    Alert.alert(`${userIdToGivePointsName} đã nhận thêm 2 điểm.`)
+                    if (!keyAdmindTrueFirebase){
+                      firebase.database().ref(`users/${modalGivePointsId}/stars`).set(starsOfUserforGive + 2)
+                      firebase.database().ref(`users/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
+                      // console.log('starsOfUserforGive + 2', starsOfUserforGive + 2)
+                      setModalGivePoints(false)
+                      Alert.alert(`${userIdToGivePointsName} đã nhận thêm 2 điểm.`)
+                    }
                   }}
                   style={{
                     width: WIDTH / 4.5, height: WIDTH / 4.5, margin: 10, backgroundColor: '#ff0', alignItems: 'center',
@@ -411,9 +456,12 @@ const Home = ({ route, navigation }) => {
 
                 <TouchableOpacity
                   onPress={() => {
-                    firebase.database().ref(`users/${modalGivePointsId}/stars`).set(starsOfUserforGive + 3)
-                    setModalGivePoints(false)
-                    Alert.alert(`${userIdToGivePointsName} đã nhận thêm 3 điểm.`)
+                    if (!keyAdmindTrueFirebase){
+                      firebase.database().ref(`users/${modalGivePointsId}/stars`).set(starsOfUserforGive + 3)
+                      firebase.database().ref(`users/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
+                      setModalGivePoints(false)
+                      Alert.alert(`${userIdToGivePointsName} đã nhận thêm 3 điểm.`)
+                    }
                   }}
                   style={{
                     width: WIDTH / 4.5, height: WIDTH / 4.5, margin: 10, backgroundColor: '#ff0', alignItems: 'center',
@@ -425,9 +473,12 @@ const Home = ({ route, navigation }) => {
 
                 <TouchableOpacity
                   onPress={() => {
-                    firebase.database().ref(`users/${modalGivePointsId}/stars`).set(starsOfUserforGive + 4)
-                    setModalGivePoints(false)
-                    Alert.alert(`${userIdToGivePointsName} đã nhận thêm 4 điểm.`)
+                    if (!keyAdmindTrueFirebase){
+                      firebase.database().ref(`users/${modalGivePointsId}/stars`).set(starsOfUserforGive + 4)
+                      firebase.database().ref(`users/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
+                      setModalGivePoints(false)
+                      Alert.alert(`${userIdToGivePointsName} đã nhận thêm 4 điểm.`)
+                    }
                   }}
                   style={{
                     width: WIDTH / 4.5, height: WIDTH / 4.5, margin: 10, backgroundColor: '#ff0', alignItems: 'center',
@@ -439,9 +490,12 @@ const Home = ({ route, navigation }) => {
 
                 <TouchableOpacity
                   onPress={() => {
-                    firebase.database().ref(`users/${modalGivePointsId}/stars`).set(starsOfUserforGive + 5)
-                    setModalGivePoints(false)
-                    Alert.alert(`${userIdToGivePointsName} đã nhận thêm 5 điểm.`)
+                    if (!keyAdmindTrueFirebase){
+                      firebase.database().ref(`users/${modalGivePointsId}/stars`).set(starsOfUserforGive + 5)
+                      firebase.database().ref(`users/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
+                      setModalGivePoints(false)
+                      Alert.alert(`${userIdToGivePointsName} đã nhận thêm 5 điểm.`)
+                    }
                   }}
                   style={{
                     width: WIDTH / 4.5, height: WIDTH / 4.5, margin: 10, backgroundColor: '#ff0', alignItems: 'center',
@@ -453,9 +507,12 @@ const Home = ({ route, navigation }) => {
 
                 <TouchableOpacity
                   onPress={() => {
-                    firebase.database().ref(`users/${modalGivePointsId}/stars`).set(starsOfUserforGive + 6)
-                    setModalGivePoints(false)
-                    Alert.alert(`${userIdToGivePointsName} đã nhận thêm 6 điểm.`)
+                    if (!keyAdmindTrueFirebase){
+                      firebase.database().ref(`users/${modalGivePointsId}/stars`).set(starsOfUserforGive + 6)
+                      firebase.database().ref(`users/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
+                      setModalGivePoints(false)
+                      Alert.alert(`${userIdToGivePointsName} đã nhận thêm 6 điểm.`)
+                    }
                   }}
                   style={{
                     width: WIDTH / 4.5, height: WIDTH / 4.5, margin: 10, backgroundColor: '#ff0', alignItems: 'center',
@@ -467,9 +524,12 @@ const Home = ({ route, navigation }) => {
 
                 <TouchableOpacity
                   onPress={() => {
-                    firebase.database().ref(`users/${modalGivePointsId}/stars`).set(starsOfUserforGive + 7)
-                    setModalGivePoints(false)
-                    Alert.alert(`${userIdToGivePointsName} đã nhận thêm 7 điểm.`)
+                    if (!keyAdmindTrueFirebase){
+                      firebase.database().ref(`users/${modalGivePointsId}/stars`).set(starsOfUserforGive + 7)
+                      firebase.database().ref(`users/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
+                      setModalGivePoints(false)
+                      Alert.alert(`${userIdToGivePointsName} đã nhận thêm 7 điểm.`)
+                    }
                   }}
                   style={{
                     width: WIDTH / 4.5, height: WIDTH / 4.5, margin: 10, backgroundColor: '#ff0', alignItems: 'center',
@@ -481,9 +541,12 @@ const Home = ({ route, navigation }) => {
 
                 <TouchableOpacity
                   onPress={() => {
-                    firebase.database().ref(`users/${modalGivePointsId}/stars`).set(starsOfUserforGive + 8)
-                    setModalGivePoints(false)
-                    Alert.alert(`${userIdToGivePointsName} đã nhận thêm 8 điểm.`)
+                    if (!keyAdmindTrueFirebase){
+                      firebase.database().ref(`users/${modalGivePointsId}/stars`).set(starsOfUserforGive + 8)
+                      firebase.database().ref(`users/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
+                      setModalGivePoints(false)
+                      Alert.alert(`${userIdToGivePointsName} đã nhận thêm 8 điểm.`)
+                    }
                   }}
                   style={{
                     width: WIDTH / 4.5, height: WIDTH / 4.5, margin: 10, backgroundColor: '#ff0', alignItems: 'center',
@@ -495,9 +558,12 @@ const Home = ({ route, navigation }) => {
 
                 <TouchableOpacity
                   onPress={() => {
-                    firebase.database().ref(`users/${modalGivePointsId}/stars`).set(starsOfUserforGive + 9)
-                    setModalGivePoints(false)
-                    Alert.alert(`${userIdToGivePointsName} đã nhận thêm 9 điểm.`)
+                    if (!keyAdmindTrueFirebase){
+                      firebase.database().ref(`users/${modalGivePointsId}/stars`).set(starsOfUserforGive + 9)
+                      firebase.database().ref(`users/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
+                      setModalGivePoints(false)
+                      Alert.alert(`${userIdToGivePointsName} đã nhận thêm 9 điểm.`)
+                    }
                   }}
                   style={{
                     width: WIDTH / 4.5, height: WIDTH / 4.5, margin: 10, backgroundColor: '#ff0', alignItems: 'center',

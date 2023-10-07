@@ -298,12 +298,12 @@ export default function SignUp({ route, navigation }) {
         <View style={{width: '100%', height: '100%', backgroundColor: '#fff', justifyContent: 'center', alignItems: 'center'}}>
             <View style={{justifyContent: 'center', alignItems: 'center', width: '100%', height: H*0.23 }}>
                 <Image source={require('./imges/ic_launcher_round.png')} style={{ margin: 5, width: W*0.4, height: W*0.4}} resizeMode="cover" />
-                <Text
+                {/* <Text
                     allowFontScaling={false}
                     style={{ fontStyle: 'italic', fontWeight: 'bold', marginBottom: H * 0.005, marginBottom: H*0.05, color: '#aaa', fontSize: 13 }}
                 >
                     Simple, effective, break the language barrier
-                </Text>
+                </Text> */}
             </View>
             <View style={{alignItems: 'center', justifyContent: 'center'}}>
                 {/* gắn đuôi tự động @gmail.com vào để đăng nhập lên firebase */}

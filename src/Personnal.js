@@ -245,41 +245,41 @@ export default function Personnal({ navigation }) {
 
     return (
         <View style={{ height: '100%', flex: 1 }}>
-            <View style={{ zIndex: 9, }}>
+            {/* back button & logOut*/}
+            <View style={{ flexDirection: 'row', height: HEIGHT * 0.05, width: WIDTH, justifyContent: 'center',  alignItems: 'center', }}>
                 <TouchableOpacity
-                    onPress={createTwoButtonAlert}
+                    onPress={() => {
+                        navigation.navigate('Home');
+                    }}
+                    style={{ height: HEIGHT * 0.055, width: WIDTH * 0.8, justifyContent: 'center', }}
                 >
-                    <Image
-                        source={require('./imges/LogoSignOut.png')}
-                        style={{ marginHorizontal: 8, width: 25, height: 25, zIndex: 0, position: 'absolute', right: 10, top: 12, }}
-                        resizeMode="stretch"
-                    />
-                </TouchableOpacity>
-            </View>
-
-            {/* back button */}
-            <TouchableOpacity
-                onPress={() => {
-                    navigation.navigate('Home');
-                }}
-                style={{ height: HEIGHT * 0.055, width: WIDTH * 0.75, justifyContent: 'center', }}
-            >
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <Image
                         allowFontScaling={false}
                         source={require('./imges/BackButton_rbg1.png')}
                         style={{ width: WIDTH * 0.04, height: HEIGHT * 0.03, marginLeft: WIDTH * 0.02, borderRadius: 50, tintColor: 'blue', }}
                         resizeMode='stretch'
                     />
-                </View>
-            </TouchableOpacity>
+                    <View style={{ width: WIDTH * 0.8, }}>
+                    </View>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    onPress={createTwoButtonAlert}
+                    style={{ paddingLeft: WIDTH * 0.11, flexDirection: 'row', alignItems: 'center', }}
+                >
+                    <Image
+                        source={require('./imges/LogoSignOut.png')}
+                        style={{ marginHorizontal: 8, width: 25, height: 25, }}
+                        resizeMode="stretch"
+                    />
+                </TouchableOpacity>
+            </View>
 
             {/* Hiển thị profile và flatlist với width và height full */}
             <View style={{ height: '100%', flex: 1 }}>
                 {/* Hiển thị profile */}
                 <View
                     style={{
-                        width: '97%', flex: 25, borderRadius: 10, borderWidth: 1, borderColor: 'rgba(0, 0, 0, 0.3)', marginVertical: 7, marginLeft: 6, paddingVertical: 30,
+                        width: '97%', flex: 25, borderRadius: 10, borderWidth: 1, borderColor: 'rgba(0, 0, 0, 0.3)', marginBottom: 7, marginLeft: 6, paddingVertical: 30,
                         flexDirection: 'row', backgroundColor: '#fff', elevation: 5,
                     }}>
                     <View style={{ width: '40%', paddingHorizontal: 10, justifyContent: 'center', alignItems: 'center' }}>

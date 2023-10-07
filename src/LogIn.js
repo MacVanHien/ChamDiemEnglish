@@ -29,18 +29,18 @@ export default function LogIn({ route, navigation }) {
 
     return (
         <View style={{width: '100%', height: '100%', backgroundColor: '#fff', justifyContent: 'center', alignItems: 'center'}}>
-            <View style={{justifyContent: 'center', alignItems: 'center', width: '100%', height: 200 }}>
+            <View style={{justifyContent: 'center', alignItems: 'center', width: '100%', height: 200, marginBottom: 10, }}>
                 <Image source={require('./imges/ic_launcher_round.png')} style={{ margin: 5, width: W*0.4, height: W*0.4}} resizeMode="cover" />
-                <Text
+                {/* <Text
                     allowFontScaling={false}
                     style={{ fontStyle: 'italic', fontWeight: 'bold', marginBottom: H * 0.005, marginBottom: H*0.05, color: '#aaa', fontSize: 13 }}
                 >
                     Simple, effective, break the language barrier
-                </Text>
+                </Text> */}
             </View>
             <View>
                 <TextInput allowFontScaling={false} autoCapitalize="none" value={email} onChangeText={setEmail} placeholder=' Nhập tên đã đăng ký'
-                    require={true} style={{ fontSize: 16, color: '#333', width: 300, backgroundColor: 'rgba(0, 0, 0, 0.08)', marginBottom: 3, }}
+                    require={true} style={{ fontSize: 16, color: '#333', width: 300, backgroundColor: 'rgba(0, 0, 0, 0.08)', marginBottom: 3, marginTop: H* 0.02, }}
                     placeholderTextColor={'#fff'}
                 />
                 <TextInput allowFontScaling={false} autoCapitalize="none" value={password} onChangeText={setPassword} placeholder=' Nhập mật khẩu'

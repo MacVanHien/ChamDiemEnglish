@@ -54,11 +54,11 @@ export default function SplashScreen({navigation}) {
         backgroundColor: '#fff',
       }}>
       <Image
-        source={require('./imges/iconTimeCalculator2.png')}
+        source={require('./imges/ic_launcher_round.png')}
         style={{ width: '40%', height: WIDTH*0.4}}
         resizeMode= 'contain'
       />
-      <Text 
+      {/* <Text 
         allowFontScaling={false}
         numberOfLines={1}
         adjustsFontSizeToFit
@@ -67,12 +67,14 @@ export default function SplashScreen({navigation}) {
         allowFontScaling={false}
         numberOfLines={1}
         adjustsFontSizeToFit
-        style = {{fontSize: HEIGHT*0.021, fontWeight: 'bold', }}>Kết nối cảm xúc</Text>
+        style = {{fontSize: HEIGHT*0.021, fontWeight: 'bold', }}>Kết nối cảm xúc
+        </Text>
       <Text 
         allowFontScaling={false}
         numberOfLines={1}
         adjustsFontSizeToFit
-        style = {{fontSize: HEIGHT*0.021, fontWeight: 'bold', }}>Kết nối tương lai</Text>
+        style = {{fontSize: HEIGHT*0.021, fontWeight: 'bold', }}>Kết nối tương lai
+        </Text> */}
     </View>
   );
 }
