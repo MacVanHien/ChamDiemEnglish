@@ -236,8 +236,9 @@ export default function SignUp({ route, navigation }) {
             contact: '',
             tienThuong: 0,
             stars: 5, //đăng nhập lần đầu là 5 star, thì có thể tránh lỗi !!0 == false  //điểm 5 thể hiện biểu trưng đang level trung bình :)
-             dayTime: moment().format('YYYYMMDD'),
+            dayTime: moment().format('YYYYMMDD'),
             userId: userId,
+            room: 'none',
         }, function (error) {
             if (error) {
                 // The write failed...

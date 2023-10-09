@@ -18,6 +18,8 @@ export default function Personnal({ navigation }) {
     const [modalVisible2, setModalVisible2] = useState(false);
     const [modalVisibleLogInAdmin, setModalVisibleLogInAdmin] = useState(false);
 
+    const [roomOfUser, setRoomOfUser] = useState('')
+
     const [email, setEmail] = useState('') //email = nickname: tên để đăng nhập
     const [passAdmind, setPassAdmind] = useState('') //email = nickname: tên để đăng nhập
     // const [password, setPassword] = useState('')
@@ -34,7 +36,7 @@ export default function Personnal({ navigation }) {
     const [userId, setUserId] = useState('')
     const [data, setData] = useState([])
     const [data1, setData1] = useState([]) //chuyển mảng đảo ngược xuống data1 Để tránh trường hợp bị refresh thì mảng ko đc đảo ngược
-    const [dataFindUser, setDataFindUser] = useState([{ userName: 'admin', country: 'Vietname', tienThuong: 0, contact: 'macvanhien10@gmail.com' }])
+    const [dataFindUser, setDataFindUser] = useState([{ userName: 'admin', country: 'Vietname', room: 'none', contact: 'macvanhien10@gmail.com' }])
 
     const [isModal1, setIsModal1] = useState(false);
 
@@ -72,14 +74,22 @@ export default function Personnal({ navigation }) {
         })
     }
 
-
+    //check room first to get path
     useEffect(() => {
-        if (userId != false) {
-            firebase.database().ref(`users/keyAdmind`).on('value', snapshot => { //need "on" so it's can get the update value
+        userId != '' && firebase.database().ref(`users/${userId}/room`).once('value', snapshot => {
+            snapshot.val() !== null && setRoomOfUser(snapshot.val());
+        });
+        console.log('userId: ', userId)
+    }, [userId])
+
+    //get keyAmdind of the room for sign up Admind of user of the room
+    useEffect(() => {
+        if (userId != false && roomOfUser) {
+            firebase.database().ref(`users/room${roomOfUser}/keyAdmind`).on('value', snapshot => { //need "on" so it's can get the update value
                 !!snapshot.val() !== false && setKeyAdmind(snapshot.val());
             });
         }
-    }, [userId]);
+    }, [userId, roomOfUser]);
 
 
     useEffect(() => {
@@ -87,37 +97,34 @@ export default function Personnal({ navigation }) {
         setTimeout(() => {
             userId != '' && get_DATA_Users()
         }, 500);
-        userId != '' && firebase.database().ref(`users/${userId}/starUp`).set(false) //cứ có userId là sét false lại khi vào tap personal này
-    }, [userId])
-    //Khi email thay đổi thì render lại thì get_DATA_Users mới hoạt động đúng ý định
-
+        console.log('keyAdmindzzzzzzzzzzzzzzzzzzzzzzzz: ', keyAdmind)
+    }, [userId, roomOfUser, keyAdmind]) //Khi email thay đổi thì render lại thì get_DATA_Users mới hoạt động đúng ý định
     function getUserInfor() {
-        if (userId) {
-            firebase.database().ref(`users/${userId}/contact`).on('value', snapshot => {
+        if (userId && roomOfUser) {
+            firebase.database().ref(`users/room${roomOfUser}/${userId}/contact`).on('value', snapshot => {
                 snapshot.val() !== null && setContact(snapshot.val());
             });
-            firebase.database().ref(`users/${userId}/country`).on('value', snapshot => {
+            firebase.database().ref(`users/room${roomOfUser}/${userId}/country`).on('value', snapshot => {
                 snapshot.val() !== null && setCountry(snapshot.val());
             });
-            firebase.database().ref(`users/${userId}/tienThuong`).on('value', snapshot => {
+            firebase.database().ref(`users/room${roomOfUser}/${userId}/tienThuong`).on('value', snapshot => {
                 snapshot.val() !== null && setTienThuongUser(snapshot.val());
             });
-            firebase.database().ref(`users/${userId}/email`).on('value', snapshot => {
+            firebase.database().ref(`users/room${roomOfUser}/${userId}/email`).on('value', snapshot => {
                 snapshot.val() !== null && setEmail(snapshot.val());
             });
             // firebase.database().ref(`users/${userId}/tienThuong`).once('value', snapshot => { //để star là once vì mỗi lần vào profile sẽ refresh nên ko sợ ko cập nhật
             //     snapshot.val() !== null && setStars(snapshot.val());
             // });
-            firebase.database().ref(`users/${userId}/userName`).on('value', snapshot => {
+            firebase.database().ref(`users/room${roomOfUser}/${userId}/userName`).on('value', snapshot => {
                 snapshot.val() !== null && setUserName(snapshot.val());
             });
         }
     }
-
     //Lấy danh sách người dùng không quá 30 người
     //thu bớt list hiển thị dữ liệu firebase xuống ít hơn 50 bằng set limitToFirst(50)
     const get_DATA_Users = () => {
-        let query = firebase.database().ref('users/')
+        let query = firebase.database().ref(`users/room${roomOfUser}/`)
             .orderByChild('tienThuong') //child để tìm các giá trị so sánh
             // .startAt(0) // sàng lọc các giá trị lớn hơn theo bảng kí tự mã code nếu là chuỗi, nếu số thì lớn hơn số đã cho. Ở đây "1" là chuỗi
             .limitToLast(30); //Giới hạn kết quả là 50/ limitToLast: lấy các giá trị cuối cùng trở lại ( nếu để giá trị 1 thì là lấy giá trị lớn nhất)
@@ -145,6 +152,8 @@ export default function Personnal({ navigation }) {
         const new_arr = data.filter(item => item.userName !== undefined);
         //[...new Set(arrToGetData)] là mảng mới không có phần tử trùng lặp từ mảng arrToGetData
         setData1([...new Set(new_arr)].reverse());
+        console.log('roomof user userName:', userName)
+
     }, [data])
 
     //Search Lấy dữ liệu tên người dùng bằng tên có đc do nhập ở input
@@ -165,7 +174,7 @@ export default function Personnal({ navigation }) {
                     userName: childData.userName,
                     contact: childData.contact,
                     // facebook: childData.facebook,
-                    tienThuong: childData.tienThuong,
+                    room: childData.room,
                 });
             });
             // console.log(array)
@@ -185,13 +194,13 @@ export default function Personnal({ navigation }) {
     }
 
     function updateDataBase() {
-        if (!!userName == false) {
+        if (!!userName == false ) {
             Alert.alert('Tên trống!')
-        } else if (userId && !!userName !== false) {
+        } else if (userId && !!userName !== false && roomOfUser) {
             setIsModal1(false)
-            firebase.database().ref(`users/${userId}/userName`).set(userName)
+            firebase.database().ref(`users/room${roomOfUser}/${userId}/userName`).set(userName)
             // firebase.database().ref(`users/${userId}/facebook`).set(facebook)
-            firebase.database().ref(`users/${userId}/contact`).set(contact)
+            firebase.database().ref(`users/room${roomOfUser}/${userId}/contact`).set(contact)
         } else {
             Alert.alert('Có lỗi xảy ra!')
             // console.log('##########', !!userName != false)
@@ -224,13 +233,13 @@ export default function Personnal({ navigation }) {
 
 
     useEffect(() => {
-        if (keyAdmindTrue) {
-            firebase.database().ref(`users/${userId}/keyAdmindTrue`).set(true);
+        if (keyAdmindTrue && roomOfUser) {
+            firebase.database().ref(`users/room${roomOfUser}/${userId}/keyAdmindTrue`).set(true);
         }
     }, [keyAdmindTrue]);
 
     useEffect(() => {
-        firebase.database().ref(`users/${userId}/keyAdmindTrue`).on('value', snapshot => {
+        roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${userId}/keyAdmindTrue`).on('value', snapshot => {
             !!snapshot.val() !== false && setKeyAdmindTrue(snapshot.val());
         });
     }, [userId]);  //có [userId] thì mới chạy được đường đúng trên firebase!
@@ -360,22 +369,26 @@ export default function Personnal({ navigation }) {
 
                 {/* Hiển thị list Người dùng  Bằng Flatlist*/}
                 <View style={{ marginBottom: 0, backgroundColor: '#fff', flexShrink: 1, flex: 65, }}>
-                    {/* <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#CDAD00', elevation: 5, }}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#CDAD00', elevation: 5, }}>
                         <Text allowFontScaling={false}
                             style={{
                                 fontSize: styles.textNomalBlue.fontSize, color: '#000', textShadowColor: '#eee', textShadowOffset: { width: 1, height: 3 },
                                 textShadowRadius: 5, fontWeight: 'bold', marginVertical: 0, paddingVertical: 10, paddingHorizontal: 10
                             }}>
-                            Top người dùng Borderless
+                            Room {roomOfUser}
                         </Text>
                         <TouchableOpacity
                             onPress={() => {
                                 setModalVisible2(true)
                             }}
+                            style={{flexDirection: 'row', width: WIDTH*0.5, }}
                         >
-                            <Image source={require('./imges/search-icon1.png')} style={{ padding: 12, width: 20, height: 20, right: 20, }} resizeMode='cover' />
+                            <Text allowFontScaling={false} style={{margin: 5, marginRight: 20, color: '#fff' }}>Tìm người dùng ứng dụng </Text>
+                            <View>
+                                <Image source={require('./imges/search-icon1.png')} style={{ padding: 12, width: 20, height: 20, right: 20, }} resizeMode='cover' />
+                            </View>
                         </TouchableOpacity>
-                    </View> */}
+                    </View>
 
                     <FlatList
                         data={data1}
@@ -586,9 +599,8 @@ export default function Personnal({ navigation }) {
                                         dataFindUser.map((item, index) => {
                                             return (
                                                 <View key={index} style={{ marginBottom: 5, marginHorizontal: 12, }}>
-                                                    <Text allowFontScaling={false} style={{ fontSize: 15, fontWeight: 'bold', color: '#333', }}> {`${index + 1}. ${item.userName}: tienThuong: ${item.tienThuong}`} </Text>
+                                                    <Text allowFontScaling={false} style={{ fontSize: 15, fontWeight: 'bold', color: '#333', }}> {`${index + 1}. ${item.userName}: Room ${item.room}`} </Text>
                                                     <Text allowFontScaling={false} style={{ fontSize: 15, color: '#333', }}> {`    Country: ${item.country}`}</Text>
-                                                    <Text allowFontScaling={false} style={{ fontSize: 15, color: '#333', }}> {`    Contact: ${item.contact}`}</Text>
                                                 </View>
                                             )
                                         })

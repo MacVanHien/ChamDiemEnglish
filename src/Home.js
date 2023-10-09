@@ -19,6 +19,14 @@ const HEIGHT = Dimensions.get("window").height
 const Home = ({ route, navigation }) => {
 
   const [userId, setUserId] = useState('')
+
+  const [email, setEmail] = useState('') //email = nickname: tên để đăng nhập
+  const [passAdmind, setPassAdmind] = useState('') //email = nickname: tên để đăng nhập
+  const [userName, setUserName] = useState('')
+  const [country, setCountry] = useState('');
+  const [contact, setContact] = useState('')
+  const [tienThuongUser, setTienThuongUser] = useState('')
+
   const [tongQuy, setTongQuy] = useState('')
   const [tongThuong, setTongThuong] = useState('')
   const [tongQuyInput, setTongQuyInput] = useState('')
@@ -30,7 +38,13 @@ const Home = ({ route, navigation }) => {
   const [congTienThuongName, setCongTienThuongName] = useState('')
   const [congTienThuongIdSoTien, setCongTienThuongIdSoTien] = useState('')
   const [congTienThuongInput, setCongTienThuongInput] = useState('')
-
+  
+  const [modalChonZoom, setModalChonZoom] = useState(false)
+  const [modalReviewZoom, setModalReviewZoom] = useState(false)
+  const [roomOfUser, setRoomOfUser] = useState('')
+  const [roomIdReview, setRoomIdReview] = useState('none')
+  const [mapZone, setMapZone] = useState(["1","2","3","4","5","6","7","8","9","10","11","12"])  //tạo biến ở useState này luôn :)
+  const [dataRevew, setDataRevew] = useState([])  //tạo biến ở useState này luôn :)
 
   const [data, setData] = useState([])
   const [data1, setData1] = useState([]) //chuyển mảng đảo ngược xuống data1 Để tránh trường hợp bị refresh thì mảng ko đc đảo ngược
@@ -50,8 +64,12 @@ const Home = ({ route, navigation }) => {
   const [countFordetectUserIdForView, setCountFordetectUserIdForView] = useState(2)
 
   
-
-
+  //tránh việc để default là false thì nó sẽ luôn hiện lúc mở trong mọi lần vào app
+  useEffect(() => {
+    setTimeout(() => {
+      setModalChonZoom(true)
+    }, 500);
+  }, [])
 
   useEffect(() => {
     checkUserEmail()
@@ -68,24 +86,77 @@ const Home = ({ route, navigation }) => {
     })
   }
 
+  //check room first to get path
+  useEffect(() => {
+    userId != '' && firebase.database().ref(`users/${userId}/room`).on('value', snapshot => {
+      snapshot.val() !== null && setRoomOfUser(snapshot.val());
+    });
+  }, [userId])
+
+  //stop modal choose room in first time login
+  useEffect(() => {
+    roomOfUser && setModalChonZoom(false)
+  }, [roomOfUser, modalChonZoom])
+
+
+  // Lấy lại userInfor để chuyển vào room cho lần chọn room đầu tiên
+  useEffect(() => {
+    userId != '' && getUserInfor()
+    setTimeout(() => {
+      userId != '' && get_DATA_Users()
+    }, 500);
+  }, [userId])
+  //Khi email thay đổi thì render lại thì get_DATA_Users mới hoạt động đúng ý định
+  function getUserInfor() {
+    if (userId) {
+      firebase.database().ref(`users/${userId}/contact`).on('value', snapshot => {
+        snapshot.val() !== null && setContact(snapshot.val());
+      });
+      firebase.database().ref(`users/${userId}/country`).on('value', snapshot => {
+        snapshot.val() !== null && setCountry(snapshot.val());
+      });
+      firebase.database().ref(`users/${userId}/tienThuong`).on('value', snapshot => {
+        snapshot.val() !== null && setTienThuongUser(snapshot.val());
+      });
+      firebase.database().ref(`users/${userId}/email`).on('value', snapshot => {
+        snapshot.val() !== null && setEmail(snapshot.val());
+      });
+      // firebase.database().ref(`users/${userId}/keyAdmindTrue`).on('value', snapshot => {
+      //   snapshot.val() !== null && setPassAdmind(snapshot.val()); 
+      // });
+      // firebase.database().ref(`users/${userId}/tienThuong`).once('value', snapshot => { //để star là once vì mỗi lần vào profile sẽ refresh nên ko sợ ko cập nhật
+      //     snapshot.val() !== null && setStars(snapshot.val());
+      // });
+      firebase.database().ref(`users/${userId}/userName`).on('value', snapshot => {
+        snapshot.val() !== null && setUserName(snapshot.val());
+      });
+    }
+  }
+
+
+
 
   useEffect(() => {
-    if (userId != false) {
-      get_DATA_Users()
+    if (userId != false && roomOfUser) {
+      setTimeout(() => {
+        get_DATA_Users() //setTimeout 500ms thì lại chạy ????!!!!
+      }, 500);
+      //lấy luôn data tổng thưởng, tổng quỹ
+      firebase.database().ref(`users/room${roomOfUser}/tongQuy`).on('value', snapshot => { //need "on" so it's can get the update value
+        !!snapshot.val() !== false && setTongQuy(snapshot.val());
+      });
+      firebase.database().ref(`users/room${roomOfUser}/tongThuong`).on('value', snapshot => { //need "on" so it's can get the update value
+        !!snapshot.val() !== false && setTongThuong(snapshot.val());
+      });
+      // console.log('testaaaa,',roomOfUser, 'id', userId)
     }
-    //lấy luôn data tổng thưởng, tổng quỹ
-    firebase.database().ref(`users/tongQuy`).on('value', snapshot => { //need "on" so it's can get the update value
-      !!snapshot.val() !== false && setTongQuy(snapshot.val());
-    });
-    firebase.database().ref(`users/tongThuong`).on('value', snapshot => { //need "on" so it's can get the update value
-      !!snapshot.val() !== false && setTongThuong(snapshot.val());
-    });
-  }, [userId]);
+    // console.log('test,',roomOfUser, 'id', userId)
 
-  //Lấy danh sách người dùng không quá 30 người
+  }, [userId, roomOfUser]);
+  //Lấy danh sách người dùng không quá 30 người trong room của user 
   //thu bớt list hiển thị dữ liệu firebase xuống ít hơn 50 bằng set limitToFirst(50)
   const get_DATA_Users = () => {
-    let query = firebase.database().ref('users/')
+    let query = firebase.database().ref(`users/room${roomOfUser}/`)
       .orderByChild('stars') //child để tìm các giá trị so sánh
       // .startAt(0) // sàng lọc các giá trị lớn hơn theo bảng kí tự mã code nếu là chuỗi, nếu số thì lớn hơn số đã cho. Ở đây "1" là chuỗi
       .limitToLast(30); //Giới hạn kết quả là 50/ limitToLast: lấy các giá trị cuối cùng trở lại ( nếu để giá trị 1 thì là lấy giá trị lớn nhất)
@@ -109,6 +180,7 @@ const Home = ({ route, navigation }) => {
     });
   }
 
+
   //đảo ngược mảng data để xếp lại người có stars cao nhất đến thấp nhất
   useEffect(() => {
     //Loại bỏ phần tử trùng lặp trong mảng :  phần tử chứa userName == undefined //Để loại bỏ các phần tử ảo tải về trên firebase
@@ -121,33 +193,36 @@ const Home = ({ route, navigation }) => {
   //run when start (at page first )  //set dayTimeIndexForKey = 2 (by hand) in firebase and it run !
   useEffect(() => {
     let toDay = moment().format('YYYYMMDD') //Để bỏ bớt hh:mm:ss
-    setDayTime(toDay);
+    if (roomOfUser){
+      setDayTime(toDay);
+    }
     userId != '' && getDayTime();
   }, [userId]);
 
   function getDayTime() {
-    firebase.database().ref(`users/dayTime`).once('value', snapshot => {
+    firebase.database().ref(`users/room${roomOfUser}/${userId}/dayTime`).once('value', snapshot => { //để ở mỗi user để khi user nào đăng nhập ngày mới thì userKeyAdmin về false 
       !!snapshot.val() !== false && setDayTime(snapshot.val());
     });
-    firebase.database().ref(`users/dayTimeIndexForKey`).on('value', snapshot => { //need "on" so it's can get the update value
+    firebase.database().ref(`users/room${roomOfUser}/dayTimeIndexForKey`).on('value', snapshot => { //need "on" so it's can get the update value
       !!snapshot.val() !== false && setDayTimeIndexForKey(snapshot.val());
     });
   }
 
-  // Logic nếu không cùng ngày set lại dữ liệu ngày là Today và các giá trị false hết
+  // Logic nếu không cùng ngày set lại dữ liệu ngày là Today và các giá trị false hết //phải set tất cả các keyAdminduser về false hết!
   useEffect(() => {
-    let toDay = moment().format('YYYYMMDD') //Để bỏ bớt hh:mm:ss
     // console.log('daytime', dayTime)
-    if (`${dayTime}` != '20220222' && `${dayTime}` != `${toDay}` && !!userId != false) { 
+    let toDay = moment().format('YYYYMMDD') //Để bỏ bớt hh:mm:ss
+    if (`${dayTime}` != '20220222' && `${dayTime}` != `${toDay}` && !!userId != false && roomOfUser) { //{dayTime}` != '20220222' tức là lấy đc dữ liệu về
       updateDayTime();
+      // console.log('daytimezzzzzzzzzzzzzzzzzzzzzzzzzzzzzz', dayTime)
     }
-  }, [dayTime]);
+  }, [dayTime, roomOfUser]);
 
   function updateDayTime() {
     setDayTime(moment().format('YYYYMMDD'))
-    firebase.database().ref(`users/dayTime`).set(moment().format('YYYYMMDD'));
-    firebase.database().ref(`users/${userId}/keyAdmindTrue`).set(false);
-    firebase.database().ref(`users/dayTimeIndexForKey`).set(2); // update for new day and one divice from user can put another key
+    firebase.database().ref(`users/room${roomOfUser}/${userId}/dayTime`).set(moment().format('YYYYMMDD'));
+    firebase.database().ref(`users/room${roomOfUser}/${userId}/keyAdmindTrue`).set(false);
+    firebase.database().ref(`users/room${roomOfUser}/dayTimeIndexForKey`).set(2); // update for new day and one divice from user can put another key
     // console.log('########### line 96 updateDataBase "true"')
   }
 
@@ -155,11 +230,11 @@ const Home = ({ route, navigation }) => {
   useEffect(() => {
     let keyAdmind = Math.floor(Math.random() * 1000000)
     // console.log('keyAdmind', keyAdmind)
-    if (dayTimeIndexForKey == 2) { //only need this condition!
-      firebase.database().ref(`users/keyAdmind`).set(keyAdmind);
-      firebase.database().ref(`users/dayTimeIndexForKey`).set(3); // set 3 then another divice from user can't put over another key!
+    if (dayTimeIndexForKey == 2 && roomOfUser) { //only need this condition!
+      firebase.database().ref(`users/room${roomOfUser}/keyAdmind`).set(keyAdmind);
+      firebase.database().ref(`users/room${roomOfUser}/dayTimeIndexForKey`).set(3); // set 3 then another divice from user can't put over another key!
     }
-  }, [dayTimeIndexForKey]);
+  }, [dayTimeIndexForKey, roomOfUser]);
 
 
   useEffect(() => {
@@ -173,44 +248,48 @@ const Home = ({ route, navigation }) => {
       }
     }
     setTongThuong(tongThuong)
-    console.log('tongthuongzzzzaaa', tongThuong)
+    // console.log('tongthuongzzzzaaa', tongThuong)
   }, [data]);
 
 
   //it's important so i leave it alone here
   useEffect(() => {
-    firebase.database().ref(`users/${userId}/keyAdmindTrue`).on('value', snapshot => { //need "on" so it's can get the update value
-      !!snapshot.val() !== false && setKeyAdmindTrueFirebase(snapshot.val());
-    });
-    firebase.database().ref(`users/${userId}/userIdToGivePointsForView`).on('value', snapshot => { //need "on" so it's can get the update value
-      !!snapshot.val() !== false && setModalGivePointsId(snapshot.val());
-    });
-  }, [userId, countFordetectUserIdForView]);
+    if (roomOfUser){
+      firebase.database().ref(`users/room${roomOfUser}/${userId}/keyAdmindTrue`).on('value', snapshot => { //need "on" so it's can get the update value
+        !!snapshot.val() !== false && setKeyAdmindTrueFirebase(snapshot.val());
+      });
+      firebase.database().ref(`users/room${roomOfUser}/userIdToGivePointsForView`).on('value', snapshot => { //need "on" so it's can get the update value
+        !!snapshot.val() !== false && setModalGivePointsId(snapshot.val());
+      });
+    }
+  }, [userId, countFordetectUserIdForView, roomOfUser]);
 
   useEffect(() => {
     // console.log('modalGivePointsId, modalToGivePoint', modalGivePointsId, modalGivePoints);
-    if (modalGivePointsId != 'none') {
-      firebase.database().ref(`users/${modalGivePointsId}/userName`).once('value', snapshot => { 
+    if (modalGivePointsId != 'none' && roomOfUser) {
+      firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/userName`).once('value', snapshot => { 
         !!snapshot.val() !== false && setUserIdToGivePointsName(snapshot.val());
       });
-      firebase.database().ref(`users/${modalGivePointsId}/stars`).on('value', snapshot => { 
+      firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).on('value', snapshot => { 
         !!snapshot.val() !== false && setStarsOfUserforGive(snapshot.val());
       });
       setModalGivePoints(true)
     }
-  }, [modalGivePointsId, countFordetectUserIdForView]);
+  }, [modalGivePointsId, countFordetectUserIdForView, roomOfUser]);
 
   //cập nhật tổng quỹ tổng thưởng từ firebase
   useEffect(() => {
-    firebase.database().ref(`users/tongQuy`).on('value', snapshot => { 
-      !!snapshot.val() !== false && setTongQuy(snapshot.val());
-    });
-    firebase.database().ref(`users/tongThuong`).on('value', snapshot => { 
-      !!snapshot.val() !== false && setTongThuong(snapshot.val());
-    });
-    firebase.database().ref(`users/soNguoiChamDiem`).on('value', snapshot => { 
-      !!snapshot.val() !== false && setSoNguoiChamDiem(snapshot.val()/1);
-    });
+    if (roomOfUser) {
+      firebase.database().ref(`users/room${roomOfUser}/tongQuy`).on('value', snapshot => {
+        !!snapshot.val() !== false && setTongQuy(snapshot.val());
+      });
+      firebase.database().ref(`users/room${roomOfUser}/tongThuong`).on('value', snapshot => {
+        !!snapshot.val() !== false && setTongThuong(snapshot.val());
+      });
+      firebase.database().ref(`users/room${roomOfUser}/soNguoiChamDiem`).on('value', snapshot => {
+        !!snapshot.val() !== false && setSoNguoiChamDiem(snapshot.val() / 1);
+      });
+    }
   }, []);
 
 
@@ -221,6 +300,37 @@ const Home = ({ route, navigation }) => {
   }, [modalGivePointsId])
 
 
+  //lấy danh sách thành viên trong roomIdReview
+  useEffect(() => {
+    if (roomIdReview !== 'none'){
+      let query = firebase.database().ref(`users/room${roomIdReview}/`)
+        .orderByChild('stars') //child để tìm các giá trị so sánh
+        // .startAt(0) // sàng lọc các giá trị lớn hơn theo bảng kí tự mã code nếu là chuỗi, nếu số thì lớn hơn số đã cho. Ở đây "1" là chuỗi
+        .limitToLast(30); //Giới hạn kết quả là 50/ limitToLast: lấy các giá trị cuối cùng trở lại ( nếu để giá trị 1 thì là lấy giá trị lớn nhất)
+      query.on('value', function (snapshot) {
+        let array = [];
+
+        snapshot.forEach(function (childSnapshot) {
+          var childData = childSnapshot.val();
+          array.push({
+            country: childData.country,
+            userName: childData.userName,
+            contact: childData.contact,
+            // facebook: childData.facebook,
+            stars: childData.stars,
+            userIdFirebase: childData.userId,
+            tienThuong: childData.tienThuong,
+          });
+        });
+        // console.log(`setDataRevew`, array);
+        setDataRevew(array)
+      });
+    }
+  }, [roomIdReview])
+
+
+
+
 
 
 
@@ -229,8 +339,9 @@ const Home = ({ route, navigation }) => {
   return (
     <SafeAreaView style={[styles.container, { justifyContent: 'center', alignItems: 'center', }]}>
       <View>
+        {/* View top: you, tongQuy, TongThuong */}
         <View style={{
-          marginVertical: 5, flexDirection: 'row', backgroundColor: '#fff', height: HEIGHT * 0.04,
+          marginVertical: 5, flexDirection: 'row', backgroundColor: '#006400', height: HEIGHT * 0.04,
           justifyContent: 'center', alignItems: 'center',
         }}>
           <TouchableOpacity
@@ -238,9 +349,9 @@ const Home = ({ route, navigation }) => {
               // setLessonInModal(info)
               navigation.navigate('Personnal');
             }}
-            style={{backgroundColor: '#fff', borderRightWidth: 2, borderColor: '#ccc', marginLeft: WIDTH*0.02, }}
+            style={{backgroundColor: '#006400', borderRightWidth: 2, borderColor: '#ccc', marginLeft: WIDTH*0.02, }}
           >
-            <Text allowFontScaling={false} style={{ width: WIDTH * 0.3, fontSize: 15, fontWeight: 'bold', color: '#006400', }}>
+            <Text allowFontScaling={false} style={{ width: WIDTH * 0.3, fontSize: 15, fontWeight: 'bold', color: '#fff', }}>
               {`You`}
             </Text>
           </TouchableOpacity>
@@ -249,11 +360,11 @@ const Home = ({ route, navigation }) => {
             onPress={()=> {
               setModalTongQuyTien(true)
             }} 
-            style={{backgroundColor: '#fff', borderRightWidth: 2, borderColor: '#ccc', }}         
+            style={{backgroundColor: '#006400', borderRightWidth: 2, borderColor: '#ccc', }}         
           >
             <Text allowFontScaling={false} style={{
               width: WIDTH * 0.33, fontSize: 14, fontWeight: 'bold',
-              color: tongQuy / 1 > tongThuong / 1 ? '#006400' : '#f00',
+              color: tongQuy / 1 >= tongThuong / 1 ? '#fff' : '#f00',
             }}>
               {` Tổng quỹ: ${tongQuy}k`}
             </Text>
@@ -263,13 +374,13 @@ const Home = ({ route, navigation }) => {
               setModalTongQuyTien(true)
             }}          
           >
-            <Text allowFontScaling={false} style={{ width: WIDTH * 0.33, fontSize: 14, fontWeight: 'bold', color: '#006400', }}>
+            <Text allowFontScaling={false} style={{ width: WIDTH * 0.33, fontSize: 14, fontWeight: 'bold', color: '#fff', }}>
               {` Tổng thưởng: ${tongThuong}k`}
             </Text>
           </TouchableOpacity>
         </View>
 
-
+        {/* View Bảng Thành viên trong room */}
         <ScrollView style={{ marginBottom: 5, width: WIDTH * 0.999, backgroundColor: '#fff', }}>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', }}>
             {
@@ -307,9 +418,9 @@ const Home = ({ route, navigation }) => {
                             {
                               text: 'Chọn thành viên',
                               onPress: () => {
-                                console.log('info.useridfirebase', info.userIdFirebase)
-                                if (keyAdmindTrueFirebase) {
-                                  firebase.database().ref(`users/userIdToGivePointsForView`).set(info.userIdFirebase)
+                                // console.log('info.useridfirebase', info.userIdFirebase)
+                                if (keyAdmindTrueFirebase && roomOfUser) {
+                                  firebase.database().ref(`users/room${roomOfUser}/userIdToGivePointsForView`).set(info.userIdFirebase)
                                   // setStarsOfUserforGive(info.stars)
                                 }
                               },
@@ -345,7 +456,6 @@ const Home = ({ route, navigation }) => {
                 )
               })
             }
-
           </View>
         </ScrollView>
 
@@ -379,7 +489,7 @@ const Home = ({ route, navigation }) => {
                         {
                           text: 'Ok',
                           onPress: () => {
-                            firebase.database().ref(`users/userIdToGivePointsForView`).set('none')
+                            roomOfUser && firebase.database().ref(`users/room${roomOfUser}/userIdToGivePointsForView`).set('none')
                             setModalGivePointsId('none') //để fix hiển thị ở máy admind!!
                             setModalGivePoints(false)
                             setCountFordetectUserIdForView(countFordetectUserIdForView + 1)
@@ -413,6 +523,12 @@ const Home = ({ route, navigation }) => {
                     }}>
                       Bảng chấm điểm - {userIdToGivePointsName}
                     </Text>
+                    <Text allowFontScaling={false} style={{
+                      fontSize: 14, fontWeight: 'bold', color: '#fff',
+                      position: 'relative', top: HEIGHT * 0.01, left: -WIDTH * 0.01,
+                    }}>
+                      Số người đã chấm điểm - {soNguoiChamDiem/1}
+                    </Text>
                   </View>
                 </View>
               </TouchableOpacity>
@@ -422,8 +538,8 @@ const Home = ({ route, navigation }) => {
                 <TouchableOpacity
                   onPress={() => {
                     if (!keyAdmindTrueFirebase){
-                      firebase.database().ref(`users/${modalGivePointsId}/stars`).set(starsOfUserforGive + 1)
-                      firebase.database().ref(`users/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
+                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).set(starsOfUserforGive + 1)
+                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
                       setModalGivePoints(false)
                       Alert.alert(`${userIdToGivePointsName} đã nhận thêm 1 điểm.`)
                     }
@@ -439,8 +555,8 @@ const Home = ({ route, navigation }) => {
                 <TouchableOpacity
                   onPress={() => {
                     if (!keyAdmindTrueFirebase){
-                      firebase.database().ref(`users/${modalGivePointsId}/stars`).set(starsOfUserforGive + 2)
-                      firebase.database().ref(`users/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
+                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).set(starsOfUserforGive + 2)
+                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
                       // console.log('starsOfUserforGive + 2', starsOfUserforGive + 2)
                       setModalGivePoints(false)
                       Alert.alert(`${userIdToGivePointsName} đã nhận thêm 2 điểm.`)
@@ -457,8 +573,8 @@ const Home = ({ route, navigation }) => {
                 <TouchableOpacity
                   onPress={() => {
                     if (!keyAdmindTrueFirebase){
-                      firebase.database().ref(`users/${modalGivePointsId}/stars`).set(starsOfUserforGive + 3)
-                      firebase.database().ref(`users/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
+                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).set(starsOfUserforGive + 3)
+                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
                       setModalGivePoints(false)
                       Alert.alert(`${userIdToGivePointsName} đã nhận thêm 3 điểm.`)
                     }
@@ -474,8 +590,8 @@ const Home = ({ route, navigation }) => {
                 <TouchableOpacity
                   onPress={() => {
                     if (!keyAdmindTrueFirebase){
-                      firebase.database().ref(`users/${modalGivePointsId}/stars`).set(starsOfUserforGive + 4)
-                      firebase.database().ref(`users/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
+                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).set(starsOfUserforGive + 4)
+                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
                       setModalGivePoints(false)
                       Alert.alert(`${userIdToGivePointsName} đã nhận thêm 4 điểm.`)
                     }
@@ -491,8 +607,8 @@ const Home = ({ route, navigation }) => {
                 <TouchableOpacity
                   onPress={() => {
                     if (!keyAdmindTrueFirebase){
-                      firebase.database().ref(`users/${modalGivePointsId}/stars`).set(starsOfUserforGive + 5)
-                      firebase.database().ref(`users/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
+                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).set(starsOfUserforGive + 5)
+                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
                       setModalGivePoints(false)
                       Alert.alert(`${userIdToGivePointsName} đã nhận thêm 5 điểm.`)
                     }
@@ -508,8 +624,8 @@ const Home = ({ route, navigation }) => {
                 <TouchableOpacity
                   onPress={() => {
                     if (!keyAdmindTrueFirebase){
-                      firebase.database().ref(`users/${modalGivePointsId}/stars`).set(starsOfUserforGive + 6)
-                      firebase.database().ref(`users/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
+                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).set(starsOfUserforGive + 6)
+                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
                       setModalGivePoints(false)
                       Alert.alert(`${userIdToGivePointsName} đã nhận thêm 6 điểm.`)
                     }
@@ -525,8 +641,8 @@ const Home = ({ route, navigation }) => {
                 <TouchableOpacity
                   onPress={() => {
                     if (!keyAdmindTrueFirebase){
-                      firebase.database().ref(`users/${modalGivePointsId}/stars`).set(starsOfUserforGive + 7)
-                      firebase.database().ref(`users/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
+                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).set(starsOfUserforGive + 7)
+                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
                       setModalGivePoints(false)
                       Alert.alert(`${userIdToGivePointsName} đã nhận thêm 7 điểm.`)
                     }
@@ -542,8 +658,8 @@ const Home = ({ route, navigation }) => {
                 <TouchableOpacity
                   onPress={() => {
                     if (!keyAdmindTrueFirebase){
-                      firebase.database().ref(`users/${modalGivePointsId}/stars`).set(starsOfUserforGive + 8)
-                      firebase.database().ref(`users/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
+                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).set(starsOfUserforGive + 8)
+                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
                       setModalGivePoints(false)
                       Alert.alert(`${userIdToGivePointsName} đã nhận thêm 8 điểm.`)
                     }
@@ -559,8 +675,8 @@ const Home = ({ route, navigation }) => {
                 <TouchableOpacity
                   onPress={() => {
                     if (!keyAdmindTrueFirebase){
-                      firebase.database().ref(`users/${modalGivePointsId}/stars`).set(starsOfUserforGive + 9)
-                      firebase.database().ref(`users/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
+                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).set(starsOfUserforGive + 9)
+                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
                       setModalGivePoints(false)
                       Alert.alert(`${userIdToGivePointsName} đã nhận thêm 9 điểm.`)
                     }
@@ -609,7 +725,7 @@ const Home = ({ route, navigation }) => {
               onPress={() => {
                 if (!isNaN(tongQuyInput/1)) {
                   setModalTongQuyTien(false)
-                  firebase.database().ref(`users/tongQuy`).set(tongQuy/1 + tongQuyInput/1)
+                  roomOfUser && firebase.database().ref(`users/room${roomOfUser}/tongQuy`).set(tongQuy/1 + tongQuyInput/1)
                   Alert.alert(`Đã cộng ${tongQuyInput/1}k vào tổng quỹ.`);
                 } else {
                   Alert.alert(`Hãy nhập một số hoặc bỏ trống(nếu cộng 0k)!`);
@@ -647,7 +763,7 @@ const Home = ({ route, navigation }) => {
               onPress={() => {
                 if (!isNaN(congTienThuongInput/1) && congTienThuongId) {
                   setModalCongTienThuong(false)
-                  firebase.database().ref(`users/${congTienThuongId}/tienThuong`).set(congTienThuongIdSoTien/1 + congTienThuongInput/1)
+                  roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${congTienThuongId}/tienThuong`).set(congTienThuongIdSoTien/1 + congTienThuongInput/1)
                   Alert.alert(`${congTienThuongName} đã được cộng ${congTienThuongInput/1}k vào tổng tiền thưởng.`);
                 } else if (isNaN(congTienThuongInput/1)){
                   Alert.alert(`Hãy nhập một số hoặc bỏ trống(nếu cộng 0k)!`);
@@ -660,6 +776,201 @@ const Home = ({ route, navigation }) => {
               <Text allowFontScaling={false} style={{ color: '#fff', fontSize: 15, marginHorizontal: '5.5%' }}>Submit</Text>
             </TouchableOpacity>
           </View>
+        </View>
+      </Modal>
+
+      {/* Hiển thị modal Chọn zoom khi mới đăng nhập mới chưa có zoom */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalChonZoom}
+        onRequestClose={() => {
+          setModalTongQuyTien(!modalChonZoom);
+        }}
+      >
+        <View style={{ width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.3)', }}>
+          <ScrollView style={{ marginBottom: 5, width: WIDTH * 0.999, backgroundColor: '#fff', }}>
+            <Text allowFontScaling={false} style={{
+              color: '#333', fontSize: HEIGHT * 0.022, width: WIDTH, fontWeight: 'bold', flexWrap: 'wrap', textAlign: 'center',
+              marginVertical: HEIGHT*0.1,
+            }}>
+              Chọn room để tham gia team!
+            </Text>
+
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', }}>
+              {
+                mapZone.map((info, indx) => {
+                  return (
+                    <TouchableOpacity
+                      key={indx * Math.random()}
+                      style={{
+                        height: HEIGHT * 0.07, backgroundColor: (info.tienThuong) / 1 < 50 ? '#fff' : '#ADFF2F', width: WIDTH * 0.4,
+                        marginLeft: WIDTH * 0.067, marginVertical: 5, borderRadius: 3, elevation: 5, borderColor: '#333', borderWidth: 0.5,
+                        justifyContent: 'center', alignItems: 'center',
+                      }}
+                      onPress={() => {
+                        Alert.alert(
+                          '',
+                          `Chọn chức năng: `,
+                          [
+                            {
+                              text: 'Cancel',
+                              onPress: () => console.log('Cancel Pressed'),
+                              style: 'cancel',
+                            },
+                            {
+                              text: 'Review room',
+                              onPress: () => {
+                                setRoomIdReview(info)
+                                setTimeout(() => {
+                                  setModalReviewZoom(true)
+                                }, 300);
+                              },
+                              style: 'success',
+                            },
+                            {
+                              text: 'Chọn room',
+                              onPress: () => {
+                                Alert.alert(
+                                  '',
+                                  `Bạn muốn chọn room${info} này?`,
+                                  [
+                                    {
+                                      text: 'Cancel',
+                                      onPress: () => console.log('Cancel Pressed'),
+                                      style: 'cancel',
+                                    },
+                                    {
+                                      text: 'Ok',
+                                      onPress: () => {
+                                        firebase.database().ref(`users/${userId}/room`).set(info)
+                                        firebase.database().ref(`users/room${info}/${userId}`).set({
+                                          // firebase.database().ref('users/' + id).set({
+                                          email: email.trim(), //NickName đăng nhập
+                                          userName: userName.trim(), //Sau này sẽ sét lại được
+                                          country: country,
+                                          facebook: '',
+                                          contact: '',
+                                          tienThuong: 0,
+                                          stars: 5, //đăng nhập lần đầu là 5 star, thì có thể tránh lỗi !!0 == false  //điểm 5 thể hiện biểu trưng đang level trung bình :)
+                                          dayTime: moment().format('YYYYMMDD'),
+                                          userId: userId,
+                                          room: `${info}`,
+                                        })
+                                        setModalChonZoom(false)
+                                        Alert.alert(`Bạn đã là thành viên của room${info}.`)
+                                      },
+                                      style: 'success',
+                                    },
+                                  ],
+                                  {
+                                    cancelable: true,
+                                    onDismiss: () =>
+                                      console.log(
+                                        'This alert was dismissed by tapping outside of the alert dialog.',
+                                      ),
+                                  },
+                                );
+                              },
+                              style: 'success',
+                            },
+                          ],
+                          {
+                            cancelable: true,
+                            onDismiss: () =>
+                              console.log(
+                                'This alert was dismissed by tapping outside of the alert dialog.',
+                              ),
+                          },
+                        );
+                        
+                      }}
+                    >
+                      <Text allowFontScaling={false} borderColor='#000' style={{
+                        color: '#006400', fontSize: HEIGHT * 0.019, fontWeight: 'bold', margin: 1, flexWrap: 'wrap',
+                        paddingTop: 3, marginHorizontal: 8, textAlign: 'center',
+                        // textShadowOffset: { width: 0.1, height: 0.1 }, textShadowRadius: 0.5, textShadowColor: '#000',
+                      }}>
+                        {`Room ${info}.`}
+                      </Text>
+                    </TouchableOpacity>
+                  )
+                })
+              }
+            </View>
+          </ScrollView>
+        </View>
+      </Modal>
+
+      {/* Hiển thị modal thông tin người dùng trong zoom để review */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalReviewZoom}
+        onRequestClose={() => {
+          setModalTongQuyTien(!modalReviewZoom);
+        }}
+      >
+        <View style={{ width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.3)', }}>
+          <View style={{width: WIDTH*0.8, height: HEIGHT* 0.9, borderRadius: 5, backgroundColor: '#008000', }}>
+            {/* Nút back */}
+            <TouchableOpacity
+              onPress={() => {
+                setModalReviewZoom(false)
+              }}
+              style={{ height: HEIGHT * 0.07, width: WIDTH * 0.9, justifyContent: 'center', }}
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Image
+                  allowFontScaling={false}
+                  source={require('./imges/BackButton_rbg1.png')}
+                  style={{ width: WIDTH * 0.04, height: WIDTH * 0.05, marginLeft: WIDTH * 0.05, marginTop: HEIGHT * 0.01, tintColor: '#333', }}
+                  resizeMode='stretch'
+                />
+                <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1, }}>
+                  <Text allowFontScaling={false} style={{
+                    fontSize: 18, fontWeight: 'bold', color: '#fff',
+                    position: 'relative', top: HEIGHT * 0.01, left: -WIDTH * 0.09,
+                  }}>
+                    Room {roomIdReview}
+                  </Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+
+            {/* Hiển thị list Người dùng  Bằng Flatlist*/}
+            <View style={{ marginBottom: 0, backgroundColor: '#fff', flexShrink: 1, flex: 1, }}>
+
+              <FlatList
+                data={dataRevew}
+                keyExtractor={(item, index) => index.toString()}
+                initialNumToRender={5}
+                contentContainerStyle={{ paddingBottom: HEIGHT * 0.3 }}
+                style={{ backgroundColor: '#fff', flexGrow: 0, }}
+                // Thêm flexGrow để tính năng height hoạt động
+                renderItem={({ item, index }) =>
+                  <View key={index}
+                    style={{
+                      marginVertical: 5, borderWidth: 1, borderColor: '#aaa', marginHorizontal: 10, elevation: 4, backgroundColor: '#fff',
+                      borderRadius: 5, paddingVertical: 5, paddingHorizontal: 8,
+                    }}>
+                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', }}>
+                      <Text allowFontScaling={false} style={{ marginVertical: 2, fontSize: 15, fontWeight: 'bold', color: '#006400', }}>
+                        {`${index + 1}. ${item.userName}:`}
+                      </Text>
+                      <Text allowFontScaling={false} style={{ marginVertical: 2, fontSize: 14, fontWeight: 'bold', color: '#006400', }}>
+                        {`    ${item.tienThuong}k (${item.country}),`}
+                      </Text>
+                    </View>
+                    <Text allowFontScaling={false} style={{ marginRight: 0, fontSize: 14 - HEIGHT * 0.001, color: '#000', }}>
+                      {`    Lời nhắn: ${item.contact}`}
+                    </Text>
+                  </View>
+                }
+              />
+            </View>
+          </View>
+
         </View>
       </Modal>
 
