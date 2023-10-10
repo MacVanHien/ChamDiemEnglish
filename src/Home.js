@@ -64,12 +64,7 @@ const Home = ({ route, navigation }) => {
   const [countFordetectUserIdForView, setCountFordetectUserIdForView] = useState(2)
 
   
-  //tránh việc để default là false thì nó sẽ luôn hiện lúc mở trong mọi lần vào app
-  useEffect(() => {
-    setTimeout(() => {
-      setModalChonZoom(true)
-    }, 500);
-  }, [])
+ 
 
   useEffect(() => {
     checkUserEmail()
@@ -95,9 +90,14 @@ const Home = ({ route, navigation }) => {
 
   //stop modal choose room in first time login
   useEffect(() => {
-    roomOfUser && setModalChonZoom(false)
+    if (roomOfUser == 'none'){
+      setModalChonZoom(true)
+    } else {
+      setModalChonZoom(false)
+    }
   }, [roomOfUser, modalChonZoom])
 
+  
 
   // Lấy lại userInfor để chuyển vào room cho lần chọn room đầu tiên
   useEffect(() => {
@@ -222,6 +222,7 @@ const Home = ({ route, navigation }) => {
     setDayTime(moment().format('YYYYMMDD'))
     firebase.database().ref(`users/room${roomOfUser}/${userId}/dayTime`).set(moment().format('YYYYMMDD'));
     firebase.database().ref(`users/room${roomOfUser}/${userId}/keyAdmindTrue`).set(false);
+    firebase.database().ref(`users/room${roomOfUser}/${userId}/soNguoiChamDiem`).set(0);
     firebase.database().ref(`users/room${roomOfUser}/dayTimeIndexForKey`).set(2); // update for new day and one divice from user can put another key
     // console.log('########### line 96 updateDataBase "true"')
   }
@@ -328,6 +329,7 @@ const Home = ({ route, navigation }) => {
     }
   }, [roomIdReview])
 
+  
 
 
 
@@ -351,7 +353,7 @@ const Home = ({ route, navigation }) => {
             }}
             style={{backgroundColor: '#006400', borderRightWidth: 2, borderColor: '#ccc', marginLeft: WIDTH*0.02, }}
           >
-            <Text allowFontScaling={false} style={{ width: WIDTH * 0.3, fontSize: 15, fontWeight: 'bold', color: '#fff', }}>
+            <Text allowFontScaling={false} style={{ width: WIDTH * 0.3, fontSize: HEIGHT * 0.021, fontWeight: 'bold', color: '#fff', }}>
               {`You`}
             </Text>
           </TouchableOpacity>
@@ -363,7 +365,7 @@ const Home = ({ route, navigation }) => {
             style={{backgroundColor: '#006400', borderRightWidth: 2, borderColor: '#ccc', }}         
           >
             <Text allowFontScaling={false} style={{
-              width: WIDTH * 0.33, fontSize: 14, fontWeight: 'bold',
+              width: WIDTH * 0.33, fontSize: HEIGHT * 0.021, fontWeight: 'bold',
               color: tongQuy / 1 >= tongThuong / 1 ? '#fff' : '#f00',
             }}>
               {` Tổng quỹ: ${tongQuy}k`}
@@ -374,7 +376,7 @@ const Home = ({ route, navigation }) => {
               setModalTongQuyTien(true)
             }}          
           >
-            <Text allowFontScaling={false} style={{ width: WIDTH * 0.33, fontSize: 14, fontWeight: 'bold', color: '#fff', }}>
+            <Text allowFontScaling={false} style={{ width: WIDTH * 0.33, fontSize: HEIGHT * 0.021, fontWeight: 'bold', color: '#fff', }}>
               {` Tổng thưởng: ${tongThuong}k`}
             </Text>
           </TouchableOpacity>
@@ -445,7 +447,7 @@ const Home = ({ route, navigation }) => {
                     }}>
                       {` ${info.userName}: ${info.stars} điểm.`}
                     </Text>
-                    <Text allowFontScaling={false} style={{
+                    <Text allowFontScaling={false} adjustsFontSizeToFit numberOfLines={1} style={{
                       color: '#006400', fontSize: HEIGHT * 0.019, fontWeight: 'bold',
                       margin: 1, flexWrap: 'wrap', marginHorizontal: 8, textAlign: 'center',
                       // textShadowOffset: { width: 0.1, height: 0.1 }, textShadowRadius: 0.5, textShadowColor: '#000',
@@ -518,13 +520,13 @@ const Home = ({ route, navigation }) => {
                   />
                   <View style= {{justifyContent: 'center', alignItems: 'center', flex: 1,  }}>
                     <Text allowFontScaling={false} style={{
-                      fontSize: 18, fontWeight: 'bold', color: '#fff',
+                      fontSize: HEIGHT * 0.021, fontWeight: 'bold', color: '#fff',
                       position: 'relative', top: HEIGHT * 0.01, left: -WIDTH * 0.01,
                     }}>
                       Bảng chấm điểm - {userIdToGivePointsName}
                     </Text>
                     <Text allowFontScaling={false} style={{
-                      fontSize: 14, fontWeight: 'bold', color: '#fff',
+                      fontSize: HEIGHT * 0.019, fontWeight: 'bold', color: '#fff',
                       position: 'relative', top: HEIGHT * 0.01, left: -WIDTH * 0.01,
                     }}>
                       Số người đã chấm điểm - {soNguoiChamDiem/1}
@@ -549,7 +551,7 @@ const Home = ({ route, navigation }) => {
                     justifyContent: 'center', borderRadius: 10,
                   }}
                 >
-                  <Text allowFontScaling={false} style={{fontSize: 17, fontWeight: 'bold', color: '#000', }}>1</Text>
+                  <Text allowFontScaling={false} style={{fontSize: HEIGHT * 0.021, fontWeight: 'bold', color: '#000', }}>1</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -567,7 +569,7 @@ const Home = ({ route, navigation }) => {
                     justifyContent: 'center', borderRadius: 10,
                   }}
                 >
-                  <Text allowFontScaling={false} style={{fontSize: 17, fontWeight: 'bold', color: '#000', }}>2</Text>
+                  <Text allowFontScaling={false} style={{fontSize: HEIGHT * 0.021, fontWeight: 'bold', color: '#000', }}>2</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -584,7 +586,7 @@ const Home = ({ route, navigation }) => {
                     justifyContent: 'center', borderRadius: 10,
                   }}
                 >
-                  <Text allowFontScaling={false} style={{fontSize: 17, fontWeight: 'bold', color: '#000', }}>3</Text>
+                  <Text allowFontScaling={false} style={{fontSize: HEIGHT * 0.021, fontWeight: 'bold', color: '#000', }}>3</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -601,7 +603,7 @@ const Home = ({ route, navigation }) => {
                     justifyContent: 'center', borderRadius: 10,
                   }}
                 >
-                  <Text allowFontScaling={false} style={{fontSize: 17, fontWeight: 'bold', color: '#000', }}>4</Text>
+                  <Text allowFontScaling={false} style={{fontSize: HEIGHT * 0.021, fontWeight: 'bold', color: '#000', }}>4</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -618,7 +620,7 @@ const Home = ({ route, navigation }) => {
                     justifyContent: 'center', borderRadius: 10,
                   }}
                 >
-                  <Text allowFontScaling={false} style={{fontSize: 17, fontWeight: 'bold', color: '#000', }}>5</Text>
+                  <Text allowFontScaling={false} style={{fontSize: HEIGHT * 0.021, fontWeight: 'bold', color: '#000', }}>5</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -635,7 +637,7 @@ const Home = ({ route, navigation }) => {
                     justifyContent: 'center', borderRadius: 10,
                   }}
                 >
-                  <Text allowFontScaling={false} style={{fontSize: 17, fontWeight: 'bold', color: '#000', }}>6</Text>
+                  <Text allowFontScaling={false} style={{fontSize: HEIGHT * 0.021, fontWeight: 'bold', color: '#000', }}>6</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -652,7 +654,7 @@ const Home = ({ route, navigation }) => {
                     justifyContent: 'center', borderRadius: 10,
                   }}
                 >
-                  <Text allowFontScaling={false} style={{fontSize: 17, fontWeight: 'bold', color: '#000', }}>7</Text>
+                  <Text allowFontScaling={false} style={{fontSize: HEIGHT * 0.021, fontWeight: 'bold', color: '#000', }}>7</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -669,7 +671,7 @@ const Home = ({ route, navigation }) => {
                     justifyContent: 'center', borderRadius: 10,
                   }}
                 >
-                  <Text allowFontScaling={false} style={{fontSize: 17, fontWeight: 'bold', color: '#000', }}>8</Text>
+                  <Text allowFontScaling={false} style={{fontSize: HEIGHT * 0.021, fontWeight: 'bold', color: '#000', }}>8</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -686,7 +688,7 @@ const Home = ({ route, navigation }) => {
                     justifyContent: 'center', borderRadius: 10,
                   }}
                 >
-                  <Text allowFontScaling={false} style={{fontSize: 17, fontWeight: 'bold', color: '#000', }}>9</Text>
+                  <Text allowFontScaling={false} style={{fontSize: HEIGHT * 0.021, fontWeight: 'bold', color: '#000', }}>9</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -714,7 +716,7 @@ const Home = ({ route, navigation }) => {
           >
             <TextInput allowFontScaling={false} autoCapitalize="none" value={tongQuyInput} onChangeText={setTongQuyInput} 
             placeholder=' Nhập số tiền thêm vào tổng quỹ...'
-              require={true} style={{ fontSize: 16, color: '#333', width: 300, backgroundColor: 'rgba(0, 0, 0, 0.08)', marginBottom: 10, }}
+              require={true} style={{ fontSize: HEIGHT * 0.02, color: '#333', width: WIDTH*0.8, backgroundColor: 'rgba(0, 0, 0, 0.08)', marginBottom: 10, }}
               placeholderTextColor={'#fff'}
             />
             <TouchableOpacity
@@ -748,11 +750,11 @@ const Home = ({ route, navigation }) => {
           setModalTongQuyTien(!modalCongTienThuong);
         }}
       >
-        <View style={{ width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.3)', }}>
+        <View style={{ width: WIDTH, height: '100%', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.3)', }}>
           <View style={{ width: '90%', height: HEIGHT * 0.35, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff', borderRadius: 5, }}>
             <TextInput allowFontScaling={false} autoCapitalize="none" value={congTienThuongInput} onChangeText={setCongTienThuongInput} 
             placeholder=' Nhập số tiền thưởng cho thành viên...'
-              require={true} style={{ fontSize: 16, color: '#333', width: 300, backgroundColor: 'rgba(0, 0, 0, 0.08)', marginBottom: 10, }}
+              require={true} style={{ fontSize: HEIGHT * 0.020, color: '#333', width: WIDTH*0.8, backgroundColor: 'rgba(0, 0, 0, 0.08)', marginBottom: 10, }}
               placeholderTextColor={'#fff'}
             />
             <TouchableOpacity
@@ -773,7 +775,7 @@ const Home = ({ route, navigation }) => {
               }
               }
             >
-              <Text allowFontScaling={false} style={{ color: '#fff', fontSize: 15, marginHorizontal: '5.5%' }}>Submit</Text>
+              <Text allowFontScaling={false} style={{ color: '#fff', fontSize: HEIGHT * 0.019, marginHorizontal: '5.5%' }}>Submit</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -929,7 +931,7 @@ const Home = ({ route, navigation }) => {
                 />
                 <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1, }}>
                   <Text allowFontScaling={false} style={{
-                    fontSize: 18, fontWeight: 'bold', color: '#fff',
+                    fontSize: HEIGHT * 0.021, fontWeight: 'bold', color: '#fff',
                     position: 'relative', top: HEIGHT * 0.01, left: -WIDTH * 0.09,
                   }}>
                     Room {roomIdReview}
@@ -938,7 +940,7 @@ const Home = ({ route, navigation }) => {
               </View>
             </TouchableOpacity>
 
-            {/* Hiển thị list Người dùng  Bằng Flatlist*/}
+            {/* Hiển thị list Người dùng  Bằng Flatlist để review*/}
             <View style={{ marginBottom: 0, backgroundColor: '#fff', flexShrink: 1, flex: 1, }}>
 
               <FlatList
@@ -955,14 +957,14 @@ const Home = ({ route, navigation }) => {
                       borderRadius: 5, paddingVertical: 5, paddingHorizontal: 8,
                     }}>
                     <View style={{ flexDirection: 'row', flexWrap: 'wrap', }}>
-                      <Text allowFontScaling={false} style={{ marginVertical: 2, fontSize: 15, fontWeight: 'bold', color: '#006400', }}>
+                      <Text allowFontScaling={false} style={{ marginVertical: 2, fontSize: HEIGHT * 0.019, fontWeight: 'bold', color: '#006400', }}>
                         {`${index + 1}. ${item.userName}:`}
                       </Text>
-                      <Text allowFontScaling={false} style={{ marginVertical: 2, fontSize: 14, fontWeight: 'bold', color: '#006400', }}>
+                      <Text allowFontScaling={false} style={{ marginVertical: 2, fontSize: HEIGHT * 0.019, fontWeight: 'bold', color: '#006400', }}>
                         {`    ${item.tienThuong}k (${item.country}),`}
                       </Text>
                     </View>
-                    <Text allowFontScaling={false} style={{ marginRight: 0, fontSize: 14 - HEIGHT * 0.001, color: '#000', }}>
+                    <Text allowFontScaling={false} style={{ marginRight: 0, fontSize: HEIGHT * 0.018, color: '#000', }}>
                       {`    Lời nhắn: ${item.contact}`}
                     </Text>
                   </View>
