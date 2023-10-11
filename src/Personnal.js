@@ -232,19 +232,19 @@ export default function Personnal({ navigation }) {
     // console.log(data[0].country)
 
 
-    useEffect(() => {
-        if (keyAdmindTrue && roomOfUser) {
-            firebase.database().ref(`users/room${roomOfUser}/${userId}/keyAdmindTrue`).set(true);
-        }
-    }, [keyAdmindTrue]);
+
 
     useEffect(() => {
         roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${userId}/keyAdmindTrue`).on('value', snapshot => {
             !!snapshot.val() !== false && setKeyAdmindTrue(snapshot.val());
         });
-    }, [userId]);  //có [userId] thì mới chạy được đường đúng trên firebase!
+    }, [userId, roomOfUser]);  //có [userId] thì mới chạy được đường đúng trên firebase!
 
 
+    useEffect(() => {
+        console.log('keyAdmindTrue zzzz', keyAdmindTrue)
+        console.log('keyAdmind zzzz', keyAdmind)
+    }, [keyAdmindTrue, keyAdmind]);  //có [userId] thì mới chạy được đường đúng trên firebase!
 
 
 
@@ -315,23 +315,86 @@ export default function Personnal({ navigation }) {
 
                         <TouchableOpacity
                             onPress={() => {
-                                if (!keyAdmindTrue) {
-                                    setModalVisibleLogInAdmin(true)
+                                if (keyAdmind == 'false') {
+                                    Alert.alert(
+                                        '',
+                                        `Bạn muốn đăng ký là Admind? `,
+                                        [
+                                            {
+                                                text: 'Cancel',
+                                                onPress: () => console.log('Cancel Pressed'),
+                                                style: 'cancel',
+                                            },
+                                            {
+                                                text: 'Đăng ký',
+                                                onPress: () => {
+                                                    console.log('dang ky')
+                                                    firebase.database().ref(`users/room${roomOfUser}/${userId}/keyAdmindTrue`).set('true')
+                                                    firebase.database().ref(`users/room${roomOfUser}/keyAdmind`).set('true')
+                                                },
+                                                style: 'success',
+                                            },
+                                        ],
+                                        {
+                                            cancelable: true,
+                                            onDismiss: () =>
+                                                console.log(
+                                                    'This alert was dismissed by tapping outside of the alert dialog.',
+                                                ),
+                                        },
+                                    );
                                 }
                                 // database().ref(`users/${userId}/userName`).set('12345abc')
+                            }}
+                            style={{ display: keyAdmind == 'false'? 'flex' : 'none',}}
+                        >
+                            <Text allowFontScaling={false}
+                                style={{
+                                    color: '#00f',
+                                    fontWeight: 'bold', marginVertical: 10, fontSize: styles.textNomalBlue.fontSize + HEIGHT * 0.003,
+                                }}>
+                                {`Đăng ký là Admind`}
+                            </Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={{ display: keyAdmindTrue == 'true' ? 'flex' : 'none',}}
+                            onPress={() => {
+                                if (keyAdmindTrue == 'true' && roomOfUser) {
+                                    Alert.alert(
+                                        '',
+                                        `Bạn muốn đăng xuất nick Admind? `,
+                                        [
+                                            {
+                                                text: 'Cancel',
+                                                onPress: () => console.log('Cancel Pressed'),
+                                                style: 'cancel',
+                                            },
+                                            {
+                                                text: 'Đăng xuất',
+                                                onPress: () => {
+                                                    console.log('dang xuat')
+                                                    firebase.database().ref(`users/room${roomOfUser}/${userId}/keyAdmindTrue`).set('false')
+                                                    firebase.database().ref(`users/room${roomOfUser}/keyAdmind`).set('false')
+                                                },
+                                                style: 'success',
+                                            },
+                                        ],
+                                        {
+                                            cancelable: true,
+                                            onDismiss: () =>
+                                                console.log(
+                                                    'This alert was dismissed by tapping outside of the alert dialog.',
+                                                ),
+                                        },
+                                    );
+                                }
                             }}
                         >
                             <Text allowFontScaling={false}
                                 style={{
-                                    color: '#00f', display: keyAdmindTrue ? 'none' : 'flex',
-                                    fontWeight: 'bold', marginVertical: 10, fontSize: styles.textNomalBlue.fontSize + HEIGHT * 0.003,
-                                }}>
-                                {`Đăng nhập Admind`}
-                            </Text>
-                            <Text allowFontScaling={false}
-                                style={{
-                                    display: keyAdmindTrue ? 'flex' : 'none',
-                                    textShadowColor: '#ff0', textShadowOffset: { width: 1, height: 3 }, textShadowRadius: 5, color: '#008000',
+                                    display: keyAdmindTrue == 'true' ? 'flex' : 'none',
+                                    textShadowColor: '#ff0', textShadowOffset: { width: 1, height: 3 }, textShadowRadius: 5, color: '#00f',
                                     fontWeight: 'bold', marginVertical: 10, fontSize: styles.textNomalBlue.fontSize + HEIGHT * 0.003,
                                 }}>
                                 {`Admind`}
@@ -620,44 +683,6 @@ export default function Personnal({ navigation }) {
                         </TouchableOpacity>
                     </View>
 
-                </View>
-            </Modal>
-
-            {/* Hiển thị đăng nhập Admind */}
-            <Modal
-                animationType="fade"
-                transparent={true}
-                visible={modalVisibleLogInAdmin}
-                onRequestClose={() => {
-                    setModalVisible(!modalVisibleLogInAdmin);
-                }}
-            >
-                <View style={{width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.3)', }}>
-                    <View style={{ width: '90%', height: HEIGHT*0.35, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff', borderRadius: 5, }}>
-                        <TextInput allowFontScaling={false} autoCapitalize="none" value={passAdmind} onChangeText={setPassAdmind} placeholder=' Nhập mật khẩu admind...'
-                            require={true} style={{ fontSize: 16, color: '#333', width: 300, backgroundColor: 'rgba(0, 0, 0, 0.08)', marginBottom: 3, }}
-                            placeholderTextColor={'#fff'}
-                        />
-                        <TouchableOpacity
-                            style={{
-                                width: 150, height: 38, borderColor: 'white', borderWidth: 1, backgroundColor: 'blue', borderRadius: 20,
-                                justifyContent: 'center', alignItems: 'center', marginTop: 20
-                            }}
-                            onPress={() => {
-                                // dangNhap()
-                                setModalVisibleLogInAdmin(false)
-                                if ( passAdmind == keyAdmind) {
-                                    Alert.alert('Đăng nhập Admind thành công!');
-                                    setKeyAdmindTrue(true)
-                                } else {
-                                    Alert.alert('Đăng nhập Admind thất bại!');
-                                }
-                            }
-                            }
-                        >
-                            <Text allowFontScaling={false} style={{ color: 'white', fontSize: 15, marginHorizontal: '5.5%' }}>Đăng nhập</Text>
-                        </TouchableOpacity>
-                    </View>
                 </View>
             </Modal>
 

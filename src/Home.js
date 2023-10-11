@@ -221,8 +221,6 @@ const Home = ({ route, navigation }) => {
   function updateDayTime() {
     setDayTime(moment().format('YYYYMMDD'))
     firebase.database().ref(`users/room${roomOfUser}/${userId}/dayTime`).set(moment().format('YYYYMMDD'));
-    firebase.database().ref(`users/room${roomOfUser}/${userId}/keyAdmindTrue`).set(false);
-    firebase.database().ref(`users/room${roomOfUser}/${userId}/soNguoiChamDiem`).set(0);
     firebase.database().ref(`users/room${roomOfUser}/dayTimeIndexForKey`).set(2); // update for new day and one divice from user can put another key
     // console.log('########### line 96 updateDataBase "true"')
   }
@@ -492,6 +490,7 @@ const Home = ({ route, navigation }) => {
                           text: 'Ok',
                           onPress: () => {
                             roomOfUser && firebase.database().ref(`users/room${roomOfUser}/userIdToGivePointsForView`).set('none')
+                            roomOfUser && firebase.database().ref(`users/room${roomOfUser}/soNguoiChamDiem`).set(0)
                             setModalGivePointsId('none') //để fix hiển thị ở máy admind!!
                             setModalGivePoints(false)
                             setCountFordetectUserIdForView(countFordetectUserIdForView + 1)
