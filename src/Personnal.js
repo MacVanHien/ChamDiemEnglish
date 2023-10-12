@@ -138,7 +138,9 @@ export default function Personnal({ navigation }) {
                     country: childData.country,
                     userName: childData.userName,
                     contact: childData.contact,
-                    tienThuong: childData.tienThuong,
+                    tienThuong: (childData.tienThuong)/1,
+                    diemSo: (childData.stars)/1,
+                    userRoomId: childData.userId,
                 });
             });
             // console.log(array)
@@ -146,7 +148,7 @@ export default function Personnal({ navigation }) {
         });
     }
 
-    //đảo ngược mảng data để xếp lại người có tienThuong cao nhất đến thấp nhất
+    //đảo ngược mảng data để xếp lại người có tienThuong cao nhất đến thấp nhất //mảng từ orderbyChild đã sắp xếp theo star thấp đến cao
     useEffect(() => {
         //Loại bỏ phần tử trùng lặp trong mảng :  phần tử chứa userName == undefined //Để loại bỏ các phần tử ảo tải về trên firebase
         const new_arr = data.filter(item => item.userName !== undefined);
@@ -433,13 +435,50 @@ export default function Personnal({ navigation }) {
                 {/* Hiển thị list Người dùng  Bằng Flatlist*/}
                 <View style={{ marginBottom: 0, backgroundColor: '#fff', flexShrink: 1, flex: 65, }}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#CDAD00', elevation: 5, }}>
-                        <Text allowFontScaling={false}
-                            style={{
-                                fontSize: styles.textNomalBlue.fontSize, color: '#000', textShadowColor: '#eee', textShadowOffset: { width: 1, height: 3 },
-                                textShadowRadius: 5, fontWeight: 'bold', marginVertical: 0, paddingVertical: 10, paddingHorizontal: 10
-                            }}>
-                            Room {roomOfUser}
-                        </Text>
+                        <TouchableOpacity
+                            onPress={()=> {
+                                if (keyAdmindTrue == 'true'){
+                                    Alert.alert(
+                                      '',
+                                      'Hành động này sẽ reset lại toàn bộ điểm số về 5đ!',
+                                      [
+                                        {
+                                          text: 'Cancel',
+                                          onPress: () => console.log('Cancel Pressed'),
+                                          style: 'cancel',
+                                        },
+                                        {
+                                          text: 'Ok',
+                                          onPress: () => {
+                                            console.log('map of user:', data)
+                                            for (var i=0; i<data.length; i++){
+                                                roomOfUser && data.length > 0 &&
+                                                    firebase.database().ref(`users/room${roomOfUser}/${data[i].userRoomId}/stars`).set(5)
+                                                    // về 5đ vừa tránh lỗi số 0 là false với sét lại giá trị là trung bình ý nghĩa trình độ đang trung bình
+                                            }
+                                          },
+                                          style: 'success',
+                                        },
+                                      ],
+                                      {
+                                        cancelable: true,
+                                        onDismiss: () =>
+                                          console.log(
+                                            'This alert was dismissed by tapping outside of the alert dialog.',
+                                          ),
+                                      },
+                                    );
+                                  }
+                            }}
+                        >
+                            <Text allowFontScaling={false}
+                                style={{
+                                    fontSize: styles.textNomalBlue.fontSize, color: '#000', textShadowColor: '#eee', textShadowOffset: { width: 1, height: 3 },
+                                    textShadowRadius: 5, fontWeight: 'bold', marginVertical: 0, paddingVertical: 10, paddingHorizontal: 10
+                                }}>
+                                Room {roomOfUser}
+                            </Text>
+                        </TouchableOpacity>
                         <TouchableOpacity
                             onPress={() => {
                                 setModalVisible2(true)
@@ -471,7 +510,7 @@ export default function Personnal({ navigation }) {
                                         {`${index + 1}. ${item.userName}:`}
                                     </Text>
                                     <Text allowFontScaling={false} style={{ marginVertical: 2, fontSize: 14, fontWeight: 'bold', color: '#006400', }}>
-                                        {`    ${item.tienThuong}k (${item.country}),`}
+                                        {`    ${item.tienThuong}k (${item.country}), ${item.diemSo}đ.`}
                                     </Text>
                                 </View>
                                 <Text allowFontScaling={false} style={{ marginRight: 0, fontSize: 14 - HEIGHT * 0.001, color: '#000', }}>

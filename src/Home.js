@@ -45,27 +45,29 @@ const Home = ({ route, navigation }) => {
   const [roomIdReview, setRoomIdReview] = useState('none')
   const [mapZone, setMapZone] = useState(["1","2","3","4","5","6","7","8","9","10","11","12"])  //tạo biến ở useState này luôn :)
   const [dataRevew, setDataRevew] = useState([])  //tạo biến ở useState này luôn :)
-
+  
   const [data, setData] = useState([])
   const [data1, setData1] = useState([]) //chuyển mảng đảo ngược xuống data1 Để tránh trường hợp bị refresh thì mảng ko đc đảo ngược
-
-
+  
+  
   const [dayTimeIndexForKey, setDayTimeIndexForKey] = useState(1) //để tìm tên khi nhấn nút search
-
+  
   const [dayTime, setDayTime] = useState('20220222'); //Để mặc định là  1 ngày nào đó trong quá khứ để chạy ok
-
+  
   const [keyAdmindTrueFirebase, setKeyAdmindTrueFirebase] = useState('false')
   const [modalGivePoints, setModalGivePoints] = useState(false)
   const [modalGivePointsId, setModalGivePointsId] = useState('') 
   const [userChamDiem, setUserChamDiem] = useState('') 
-
+  
   const [userIdToGivePointsName, setUserIdToGivePointsName] = useState(false)
   const [starsOfUserforGive, setStarsOfUserforGive] = useState(null)
-
+  
   const [countFordetectUserIdForView, setCountFordetectUserIdForView] = useState(2)
-
+  
+  const [modalVisibleNote, setModalVisibleNote] = useState(false)
   
  
+
 
   useEffect(() => {
     checkUserEmail()
@@ -171,9 +173,9 @@ const Home = ({ route, navigation }) => {
           userName: childData.userName,
           contact: childData.contact,
           // facebook: childData.facebook,
-          stars: childData.stars,
+          stars: (childData.stars)/1,
           userIdFirebase: childData.userId,
-          tienThuong: childData.tienThuong,
+          tienThuong: (childData.tienThuong)/1,
         });
       });
       // console.log(array)
@@ -472,7 +474,7 @@ const Home = ({ route, navigation }) => {
                       paddingTop: 3, marginHorizontal: 8, textAlign: 'center', 
                       // textShadowOffset: { width: 0.1, height: 0.1 }, textShadowRadius: 0.5, textShadowColor: '#000',
                     }}>
-                      {` ${info.userName}: ${info.stars} điểm.`}
+                      {` ${info.userName}: ${(info.stars)/1} điểm.`}
                     </Text>
                     <Text allowFontScaling={false} adjustsFontSizeToFit numberOfLines={1} style={{
                       color: '#006400', fontSize: HEIGHT * 0.019, fontWeight: 'bold',
@@ -486,8 +488,23 @@ const Home = ({ route, navigation }) => {
               })
             }
           </View>
+          
         </ScrollView>
 
+        {/* hiển thị nút ghi chú */}
+        <View style={{ justifyContent: 'center', alignItems: 'center', position: 'absolute', right: WIDTH*.01, top: HEIGHT* 0.8, }}>
+          <TouchableOpacity
+            onPress={() => { setModalVisibleNote(true) }}
+            style={{ marginHorizontal: WIDTH*0.03, }}>
+            <Image
+              allowFontScaling={false}
+              source={require('./imges/stickyNote.png')}
+              style={{ width: WIDTH * 0.12, height: WIDTH * 0.12, backgroundColor: '#eee', tintColor: '#00f', borderRadius: 50, }}
+              resizeMode="contain"
+            />
+          </TouchableOpacity>
+          <Text allowFontScaling={false} style={{ color: '#333', fontSize: HEIGHT * 0.015, }}>Hướng dẫn</Text>
+        </View>
 
         {/* Hiển thị modal chấm điểm */}
         <Modal
@@ -568,7 +585,7 @@ const Home = ({ route, navigation }) => {
                 <TouchableOpacity
                   onPress={() => {
                     if (keyAdmindTrueFirebase !== 'true'){ //admind là người thoát sau cùng nên ko chọn điểm!
-                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).set(starsOfUserforGive + 1)
+                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).set(starsOfUserforGive/1 + 1)
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${userId}/chamDiem`).set('done')
                       roomOfUser && firebase.database().ref(`log/room${roomOfUser}`).push(`${userId} chấm 1đ - ${moment().format('YYYYMMDD')}`)
@@ -587,7 +604,7 @@ const Home = ({ route, navigation }) => {
                 <TouchableOpacity
                   onPress={() => {
                     if (keyAdmindTrueFirebase !== 'true'){
-                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).set(starsOfUserforGive + 2)
+                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).set(starsOfUserforGive/1 + 2)
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${userId}/chamDiem`).set('done')
                       roomOfUser && firebase.database().ref(`log/room${roomOfUser}`).push(`${userId} chấm 2đ - ${moment().format('YYYYMMDD')}`)
@@ -607,7 +624,7 @@ const Home = ({ route, navigation }) => {
                 <TouchableOpacity
                   onPress={() => {
                     if (keyAdmindTrueFirebase !== 'true'){
-                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).set(starsOfUserforGive + 3)
+                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).set(starsOfUserforGive/1 + 3)
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${userId}/chamDiem`).set('done')
                       roomOfUser && firebase.database().ref(`log/room${roomOfUser}`).push(`${userId} chấm 3đ - ${moment().format('YYYYMMDD')}`)
@@ -626,7 +643,7 @@ const Home = ({ route, navigation }) => {
                 <TouchableOpacity
                   onPress={() => {
                     if (keyAdmindTrueFirebase !== 'true'){
-                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).set(starsOfUserforGive + 4)
+                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).set(starsOfUserforGive/1 + 4)
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${userId}/chamDiem`).set('done')
                       roomOfUser && firebase.database().ref(`log/room${roomOfUser}`).push(`${userId} chấm 4đ - ${moment().format('YYYYMMDD')}`)
@@ -645,7 +662,7 @@ const Home = ({ route, navigation }) => {
                 <TouchableOpacity
                   onPress={() => {
                     if (keyAdmindTrueFirebase !== 'true'){
-                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).set(starsOfUserforGive + 5)
+                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).set(starsOfUserforGive/1 + 5)
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${userId}/chamDiem`).set('done')
                       roomOfUser && firebase.database().ref(`log/room${roomOfUser}`).push(`${userId} chấm 5đ - ${moment().format('YYYYMMDD')}`)
@@ -664,7 +681,7 @@ const Home = ({ route, navigation }) => {
                 <TouchableOpacity
                   onPress={() => {
                     if (keyAdmindTrueFirebase !== 'true'){
-                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).set(starsOfUserforGive + 6)
+                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).set(starsOfUserforGive/1 + 6)
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${userId}/chamDiem`).set('done')
                       roomOfUser && firebase.database().ref(`log/room${roomOfUser}`).push(`${userId} chấm 6đ - ${moment().format('YYYYMMDD')}`)
@@ -683,7 +700,7 @@ const Home = ({ route, navigation }) => {
                 <TouchableOpacity
                   onPress={() => {
                     if (keyAdmindTrueFirebase !== 'true'){
-                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).set(starsOfUserforGive + 7)
+                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).set(starsOfUserforGive/1 + 7)
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${userId}/chamDiem`).set('done')
                       roomOfUser && firebase.database().ref(`log/room${roomOfUser}`).push(`${userId} chấm 7đ - ${moment().format('YYYYMMDD')}`)
@@ -702,7 +719,7 @@ const Home = ({ route, navigation }) => {
                 <TouchableOpacity
                   onPress={() => {
                     if (keyAdmindTrueFirebase !== 'true'){
-                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).set(starsOfUserforGive + 8)
+                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).set(starsOfUserforGive/1 + 8)
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${userId}/chamDiem`).set('done')
                       roomOfUser && firebase.database().ref(`log/room${roomOfUser}`).push(`${userId} chấm 8đ - ${moment().format('YYYYMMDD')}`)
@@ -721,7 +738,7 @@ const Home = ({ route, navigation }) => {
                 <TouchableOpacity
                   onPress={() => {
                     if (keyAdmindTrueFirebase !== 'true'){
-                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).set(starsOfUserforGive + 9)
+                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).set(starsOfUserforGive/1 + 9)
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${userId}/chamDiem`).set('done')
                       roomOfUser && firebase.database().ref(`log/room${roomOfUser}`).push(`${userId} chấm 9đ - ${moment().format('YYYYMMDD')}`)
@@ -760,6 +777,7 @@ const Home = ({ route, navigation }) => {
               backgroundColor: '#fff', borderRadius: 5,
             }}
           >
+            <Text allowFontScaling={false} style={{ color: '#333', fontSize: 15, marginHorizontal: '5.5%', fontWeight: 'bold', marginVertical: HEIGHT * 0.03, }}>Cộng tiền vào tổng quỹ</Text>
             <TextInput allowFontScaling={false} autoCapitalize="none" value={tongQuyInput} onChangeText={setTongQuyInput} 
             placeholder=' Nhập số tiền thêm vào tổng quỹ...'
               require={true} style={{ fontSize: HEIGHT * 0.02, color: '#333', width: WIDTH*0.8, backgroundColor: 'rgba(0, 0, 0, 0.08)', marginBottom: 10, }}
@@ -799,6 +817,8 @@ const Home = ({ route, navigation }) => {
       >
         <View style={{ width: WIDTH, height: '100%', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.3)', }}>
           <View style={{ width: '90%', height: HEIGHT * 0.35, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff', borderRadius: 5, }}>
+            <Text allowFontScaling={false} style={{ color: '#333', fontSize: 15, marginHorizontal: '5.5%', fontWeight: 'bold', marginVertical: HEIGHT*0.03, }}>Cộng tiền thưởng cho thành viên - {congTienThuongName}</Text>
+
             <TextInput allowFontScaling={false} autoCapitalize="none" value={congTienThuongInput} onChangeText={setCongTienThuongInput} 
             placeholder=' Nhập số tiền thưởng cho thành viên...'
               require={true} style={{ fontSize: HEIGHT * 0.020, color: '#333', width: WIDTH*0.8, backgroundColor: 'rgba(0, 0, 0, 0.08)', marginBottom: 10, }}
@@ -1023,7 +1043,192 @@ const Home = ({ route, navigation }) => {
 
         </View>
       </Modal>
+      
+      {/* Hiển thị modal hướng dẫn */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalVisibleNote}
+        onRequestClose={() => {
+          setModalTongQuyTien(!modalVisibleNote);
+        }}
+      >
+        <View style={{ width: WIDTH, height: '100%', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.3)', }}>
+          <View style={{ width: WIDTH*0.95, height: HEIGHT * 0.92, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff', borderRadius: 5, }}>
+            <View style={{height: HEIGHT*0.06, backgroundColor: '#aaa'}}>
+              {/* Nút back */}
+              <TouchableOpacity
+                onPress={() => {
+                  setModalVisibleNote(false)
+                }}
+                style={{ width: WIDTH * 0.95, justifyContent: 'center',  paddingVertical: 5, }}
+              >
+                <View style={{ flexDirection: 'row', alignItems: 'center', }}>
+                  <Image
+                    allowFontScaling={false}
+                    source={require('./imges/BackButton_rbg1.png')}
+                    style={{ width: WIDTH * 0.04, height: WIDTH * 0.05, marginLeft: WIDTH * 0.05, tintColor: '#000', marginVertical: 5, }}
+                    resizeMode='stretch'
+                  />
+                  <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1, }}>
+                    <Text allowFontScaling={false} style={{
+                      fontSize: HEIGHT * 0.021, fontWeight: 'bold', color: '#fff', left: -WIDTH*0.02,
+                    }}>
+                      Hướng dẫn
+                    </Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            </View>
+            
+            <View style={{flex: 1}}>
+              <ScrollView style={{ width: '98%', }}>
+              <Text allowFontScaling={false} style={{ color: '#333', fontSize: 15, marginHorizontal: '5.5%', fontWeight: 'bold', marginTop: 12, }}>
+                  App TeamEnglish
+                </Text>
+                <Text allowFontScaling={false} style={{ color: '#333', fontSize: 14, marginHorizontal: '5.5%', }}>
+                  App để các thành viên trong một nhóm chấm điểm cho một thành viên. App sẽ cộng điểm, tổng hợp, xếp hạng.
+                </Text>
 
+                <Text allowFontScaling={false} style={{ color: '#333', fontSize: 15, marginHorizontal: '5.5%', fontWeight: 'bold', marginTop: 12, }}>
+                  Room
+                </Text>
+                <Text allowFontScaling={false} style={{ color: '#333', fontSize: 14, marginHorizontal: '5.5%', }}>
+                  Mỗi room hoạt động riêng biệt. Nếu muốn qua room khác, bạn phải tạo tài khoản khác rồi chọn room đó khi bắt đầu vào app.
+                </Text>
+
+                <Text allowFontScaling={false} style={{ color: '#333', fontSize: 15, marginHorizontal: '5.5%', fontWeight: 'bold', marginTop: 12, }}>
+                  You
+                </Text>
+                <Image
+                  allowFontScaling={false}
+                  source={require('./imges/YouButton.png')}
+                  style={{ width: WIDTH * 0.9, height: HEIGHT * 0.2, marginLeft: WIDTH * 0.05, marginVertical: 5, }}
+                  resizeMode='stretch'
+                />
+                <Text allowFontScaling={false} style={{ color: '#333', fontSize: 14, marginHorizontal: '5.5%', }}>
+                  Nút "you" để đến màn hình Thông tin cá nhân, đăng ký - đăng xuất admind, đăng xuất khỏi tài khoản.
+                </Text>
+
+                <Text allowFontScaling={false} style={{ color: '#333', fontSize: 15, marginHorizontal: '5.5%', fontWeight: 'bold', marginTop: 12, }}>
+                  Đăng xuất
+                </Text>
+                <Image
+                  allowFontScaling={false}
+                  source={require('./imges/dangXuatLogo.png')}
+                  style={{ width: WIDTH * 0.9, height: HEIGHT * 0.3, marginLeft: WIDTH * 0.05, marginVertical: 5, }}
+                  resizeMode='stretch'
+                />
+                <Text allowFontScaling={false} style={{ color: '#333', fontSize: 14, marginHorizontal: '5.5%', }}>
+                  Đăng xuất khỏi tài khoản cần chú ý nhớ mật khẩu. Hoặc đăng xuất để đăng ký tài khoản mới qua room khác.
+                </Text>
+
+                <Text allowFontScaling={false} style={{ color: '#333', fontSize: 15, marginHorizontal: '5.5%', fontWeight: 'bold', marginTop: 12, }}>
+                  Admind
+                </Text>
+                <Text allowFontScaling={false} style={{ color: '#333', fontSize: 14, marginHorizontal: '5.5%', }}>
+                  - Mỗi room có duy nhất 1 admind. Admind là người chọn thành viên để chấm điểm, cộng số tiền vào Tổng quỹ, cộng tiền thưởng cho thành viên.
+                  Admind không chấm điểm, các thành viên chấm xong thì admind thoát bảng chấm điểm.
+                </Text>
+                <Text allowFontScaling={false} style={{ color: '#333', fontSize: 14, marginHorizontal: '5.5%', }}>
+                  - Đăng ký làm admind:
+                </Text>
+                <Image
+                  allowFontScaling={false}
+                  source={require('./imges/DangKyAdmind.png')}
+                  style={{ width: WIDTH * 0.9, height: HEIGHT * 0.5, marginLeft: WIDTH * 0.05, marginVertical: 5, }}
+                  resizeMode='stretch'
+                />
+                <Text allowFontScaling={false} style={{ color: '#333', fontSize: 14, marginHorizontal: '5.5%', }}>
+                  - Đăng xuất khỏi admind: chọn "Admind" / chọn "ĐĂNG XUẤT".
+                </Text>
+                <Image
+                  allowFontScaling={false}
+                  source={require('./imges/DangXuatAdmind.png')}
+                  style={{ width: WIDTH * 0.9, height: HEIGHT * 0.5, marginLeft: WIDTH * 0.05, marginVertical: 5, }}
+                  resizeMode='stretch'
+                />
+                <Text allowFontScaling={false} style={{ color: '#333', fontSize: 14, marginHorizontal: '5.5%', }}>
+                  - Cộng tiền cho tổng quỹ: 
+                </Text>
+                <Image
+                  allowFontScaling={false}
+                  source={require('./imges/tongQuyButton.png')}
+                  style={{ width: WIDTH * 0.9, height: HEIGHT * 0.22, marginLeft: WIDTH * 0.05, marginVertical: 5, }}
+                  resizeMode='stretch'
+                />
+                <Text allowFontScaling={false} style={{ color: '#333', fontSize: 14, marginHorizontal: '5.5%', }}>
+                  Chọn "Tổng quỹ" / nhập vào số tiền (VD: 5 nghìn nhập số 5) / nhấn nút "Submit". Muốn thoát thì nhấn "Submit" luôn
+                  hệ thống sẽ cộng 0K và không thay đổi số tiền.
+                </Text>
+                <Text allowFontScaling={false} style={{ color: '#333', fontSize: 14, marginHorizontal: '5.5%', }}>
+                  - Chọn thành viên để chấm điểm: Chạm vào thành viên (trong danh sách thành viên trên màn hình chính) / chọn "CHỌN THÀNH VIÊN". Sau khi mọi 
+                  người chấm xong thì nhất mũi tên trở lại.
+                </Text>
+                <Text allowFontScaling={false} style={{ color: '#333', fontSize: 14, marginHorizontal: '5.5%', }}>
+                  - Cộng tiền thưởng cho thành viên: Chạm vào thành viên / chọn "CHỌN THÀNH VIÊN" / nhập số tiền (VD: 5 nghìn nhập số 5) / nhấn 'Submit'.
+                  Nếu muốn thoát nhấn "Submit" khi không nhập gì cả.
+                </Text>
+                <Text allowFontScaling={false} style={{ color: '#333', fontSize: 14, marginHorizontal: '5.5%', }}>
+                  - Reset tất cả điểm:  
+                </Text>
+
+                <Text allowFontScaling={false} style={{ color: '#333', fontSize: 15, marginHorizontal: '5.5%', fontWeight: 'bold', marginTop: 12, }}>
+                  Room
+                </Text>
+                <Text allowFontScaling={false} style={{ color: '#333', fontSize: 14, marginHorizontal: '5.5%', }}>
+                  Mỗi room hoạt động riêng biệt. Nếu muốn qua room khác, 
+                </Text>
+
+                <Text allowFontScaling={false} style={{ color: '#333', fontSize: 15, marginHorizontal: '5.5%', fontWeight: 'bold', marginTop: 12, }}>
+                  Room
+                </Text>
+                <Text allowFontScaling={false} style={{ color: '#333', fontSize: 14, marginHorizontal: '5.5%', }}>
+                  Mỗi room hoạt động riêng biệt. Nếu muốn qua room khác, 
+                </Text>
+
+                <Text allowFontScaling={false} style={{ color: '#333', fontSize: 15, marginHorizontal: '5.5%', fontWeight: 'bold', marginTop: 12, }}>
+                  Room
+                </Text>
+                <Text allowFontScaling={false} style={{ color: '#333', fontSize: 14, marginHorizontal: '5.5%', }}>
+                  Mỗi room hoạt động riêng biệt. Nếu muốn qua room khác, 
+                </Text>
+
+                <Text allowFontScaling={false} style={{ color: '#333', fontSize: 15, marginHorizontal: '5.5%', fontWeight: 'bold', marginTop: 12, }}>
+                  Room
+                </Text>
+                <Text allowFontScaling={false} style={{ color: '#333', fontSize: 14, marginHorizontal: '5.5%', }}>
+                  Mỗi room hoạt động riêng biệt. Nếu muốn qua room khác, 
+                </Text>
+
+                <Text allowFontScaling={false} style={{ color: '#333', fontSize: 15, marginHorizontal: '5.5%', fontWeight: 'bold', marginTop: 12, }}>
+                  Room
+                </Text>
+                <Text allowFontScaling={false} style={{ color: '#333', fontSize: 14, marginHorizontal: '5.5%', }}>
+                  Mỗi room hoạt động riêng biệt. Nếu muốn qua room khác, 
+                </Text>
+
+                <Text allowFontScaling={false} style={{ color: '#333', fontSize: 15, marginHorizontal: '5.5%', fontWeight: 'bold', marginTop: 12, }}>
+                  Room
+                </Text>
+                <Text allowFontScaling={false} style={{ color: '#333', fontSize: 14, marginHorizontal: '5.5%', }}>
+                  Mỗi room hoạt động riêng biệt. Nếu muốn qua room khác, 
+                </Text>
+
+                <Text allowFontScaling={false} style={{ color: '#333', fontSize: 15, marginHorizontal: '5.5%', fontWeight: 'bold', marginTop: 12, }}>
+                  Room
+                </Text>
+                <Text allowFontScaling={false} style={{ color: '#333', fontSize: 14, marginHorizontal: '5.5%', }}>
+                  Mỗi room hoạt động riêng biệt. Nếu muốn qua room khác, 
+                </Text>
+              </ScrollView>
+            </View>
+
+
+        
+          </View>
+        </View>
+      </Modal>
 
     </SafeAreaView>
   );
