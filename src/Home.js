@@ -1107,7 +1107,7 @@ const Home = ({ route, navigation }) => {
                   resizeMode='stretch'
                 />
                 <Text allowFontScaling={false} style={{ color: '#333', fontSize: 14, marginHorizontal: '5.5%', }}>
-                  Nút "you" để đến màn hình Thông tin cá nhân, đăng ký - đăng xuất admind, đăng xuất khỏi tài khoản.
+                  Nút "you" để đến màn hình Thông tin cá nhân, đăng ký - đăng xuất admind, reset điểm, update lời nhắn, đăng xuất khỏi tài khoản.
                 </Text>
 
                 <Text allowFontScaling={false} style={{ color: '#333', fontSize: 15, marginHorizontal: '5.5%', fontWeight: 'bold', marginTop: 12, }}>
@@ -1140,7 +1140,7 @@ const Home = ({ route, navigation }) => {
                   resizeMode='stretch'
                 />
                 <Text allowFontScaling={false} style={{ color: '#333', fontSize: 14, marginHorizontal: '5.5%', }}>
-                  - Đăng xuất khỏi admind: chọn "Admind" / chọn "ĐĂNG XUẤT".
+                  - Đăng xuất khỏi admind: Chọn "You" / chọn "Admind" / chọn "ĐĂNG XUẤT".
                 </Text>
                 <Image
                   allowFontScaling={false}
@@ -1163,64 +1163,51 @@ const Home = ({ route, navigation }) => {
                 </Text>
                 <Text allowFontScaling={false} style={{ color: '#333', fontSize: 14, marginHorizontal: '5.5%', }}>
                   - Chọn thành viên để chấm điểm: Chạm vào thành viên (trong danh sách thành viên trên màn hình chính) / chọn "CHỌN THÀNH VIÊN". Sau khi mọi 
-                  người chấm xong thì nhất mũi tên trở lại.
+                  người chấm xong thì nhất mũi tên trở lại thoát khỏi màn hình chấm điểm.
                 </Text>
                 <Text allowFontScaling={false} style={{ color: '#333', fontSize: 14, marginHorizontal: '5.5%', }}>
                   - Cộng tiền thưởng cho thành viên: Chạm vào thành viên / chọn "CHỌN THÀNH VIÊN" / nhập số tiền (VD: 5 nghìn nhập số 5) / nhấn 'Submit'.
                   Nếu muốn thoát nhấn "Submit" khi không nhập gì cả.
                 </Text>
                 <Text allowFontScaling={false} style={{ color: '#333', fontSize: 14, marginHorizontal: '5.5%', }}>
-                  - Reset tất cả điểm:  
+                  - Reset tất cả điểm (để chấm lượt mới):  Chọn "You" / chọn "room (số phòng) / chọn "OK".
+                </Text>
+                <Image
+                  allowFontScaling={false}
+                  source={require('./imges/resetDiem.png')}
+                  style={{ width: WIDTH * 0.9, height: HEIGHT * 0.35, marginLeft: WIDTH * 0.05, marginVertical: 5, }}
+                  resizeMode='stretch'
+                />
+
+                <Text allowFontScaling={false} style={{ color: '#333', fontSize: 15, marginHorizontal: '5.5%', fontWeight: 'bold', marginTop: 12, }}>
+                  Chấm điểm:
+                </Text>
+                <Text allowFontScaling={false} style={{ color: '#333', fontSize: 14, marginHorizontal: '5.5%', }}>
+                  Khi Admind chọn thành viên, màn hình tất cả các thành viên trong room hiện bảng chấm điểm, 
+                  các thành viên chấm điểm cho thành viên được chọn.
                 </Text>
 
                 <Text allowFontScaling={false} style={{ color: '#333', fontSize: 15, marginHorizontal: '5.5%', fontWeight: 'bold', marginTop: 12, }}>
-                  Room
+                  Liên hệ trên App (viết Từ vựng, viết thông báo cho các thành viên khác trong zoom):
                 </Text>
                 <Text allowFontScaling={false} style={{ color: '#333', fontSize: 14, marginHorizontal: '5.5%', }}>
-                  Mỗi room hoạt động riêng biệt. Nếu muốn qua room khác, 
+                  Chọn "You" / chọn "Update" / Viết vào ô phần "Viết lời nhắn của bạn" / nhấn Ok để lưu.
                 </Text>
+                <Image
+                  allowFontScaling={false}
+                  source={require('./imges/upDateMessage.png')}
+                  style={{ width: WIDTH * 0.9, height: HEIGHT * 0.4, marginLeft: WIDTH * 0.05, marginVertical: 5, }}
+                  resizeMode='stretch'
+                />
 
                 <Text allowFontScaling={false} style={{ color: '#333', fontSize: 15, marginHorizontal: '5.5%', fontWeight: 'bold', marginTop: 12, }}>
-                  Room
+                  Liên hệ:
                 </Text>
                 <Text allowFontScaling={false} style={{ color: '#333', fontSize: 14, marginHorizontal: '5.5%', }}>
-                  Mỗi room hoạt động riêng biệt. Nếu muốn qua room khác, 
+                  Nếu muốn tạo thêm room (ban đầu chỉ có 12 room), phát hiện lỗi hay bất cứ điều gì về App TeamEnglish hãy liên hệ Admind qua
+                  gmail macvanhien10@gmail.com.
                 </Text>
 
-                <Text allowFontScaling={false} style={{ color: '#333', fontSize: 15, marginHorizontal: '5.5%', fontWeight: 'bold', marginTop: 12, }}>
-                  Room
-                </Text>
-                <Text allowFontScaling={false} style={{ color: '#333', fontSize: 14, marginHorizontal: '5.5%', }}>
-                  Mỗi room hoạt động riêng biệt. Nếu muốn qua room khác, 
-                </Text>
-
-                <Text allowFontScaling={false} style={{ color: '#333', fontSize: 15, marginHorizontal: '5.5%', fontWeight: 'bold', marginTop: 12, }}>
-                  Room
-                </Text>
-                <Text allowFontScaling={false} style={{ color: '#333', fontSize: 14, marginHorizontal: '5.5%', }}>
-                  Mỗi room hoạt động riêng biệt. Nếu muốn qua room khác, 
-                </Text>
-
-                <Text allowFontScaling={false} style={{ color: '#333', fontSize: 15, marginHorizontal: '5.5%', fontWeight: 'bold', marginTop: 12, }}>
-                  Room
-                </Text>
-                <Text allowFontScaling={false} style={{ color: '#333', fontSize: 14, marginHorizontal: '5.5%', }}>
-                  Mỗi room hoạt động riêng biệt. Nếu muốn qua room khác, 
-                </Text>
-
-                <Text allowFontScaling={false} style={{ color: '#333', fontSize: 15, marginHorizontal: '5.5%', fontWeight: 'bold', marginTop: 12, }}>
-                  Room
-                </Text>
-                <Text allowFontScaling={false} style={{ color: '#333', fontSize: 14, marginHorizontal: '5.5%', }}>
-                  Mỗi room hoạt động riêng biệt. Nếu muốn qua room khác, 
-                </Text>
-
-                <Text allowFontScaling={false} style={{ color: '#333', fontSize: 15, marginHorizontal: '5.5%', fontWeight: 'bold', marginTop: 12, }}>
-                  Room
-                </Text>
-                <Text allowFontScaling={false} style={{ color: '#333', fontSize: 14, marginHorizontal: '5.5%', }}>
-                  Mỗi room hoạt động riêng biệt. Nếu muốn qua room khác, 
-                </Text>
               </ScrollView>
             </View>
 
