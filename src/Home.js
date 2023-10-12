@@ -54,9 +54,10 @@ const Home = ({ route, navigation }) => {
 
   const [dayTime, setDayTime] = useState('20220222'); //Để mặc định là  1 ngày nào đó trong quá khứ để chạy ok
 
-  const [keyAdmindTrueFirebase, setKeyAdmindTrueFirebase] = useState(false)
+  const [keyAdmindTrueFirebase, setKeyAdmindTrueFirebase] = useState('false')
   const [modalGivePoints, setModalGivePoints] = useState(false)
-  const [modalGivePointsId, setModalGivePointsId] = useState('none')
+  const [modalGivePointsId, setModalGivePointsId] = useState('') 
+  const [userChamDiem, setUserChamDiem] = useState('') 
 
   const [userIdToGivePointsName, setUserIdToGivePointsName] = useState(false)
   const [starsOfUserforGive, setStarsOfUserforGive] = useState(null)
@@ -251,6 +252,7 @@ const Home = ({ route, navigation }) => {
   }, [data]);
 
 
+  
   //it's important so i leave it alone here
   useEffect(() => {
     if (roomOfUser){
@@ -264,6 +266,13 @@ const Home = ({ route, navigation }) => {
   }, [userId, countFordetectUserIdForView, roomOfUser]);
 
   useEffect(() => {
+    firebase.database().ref(`users/room${roomOfUser}/${userId}/chamDiem`).on('value', snapshot => { 
+      !!snapshot.val() !== false && setUserChamDiem(snapshot.val());
+    });
+  },[roomOfUser])
+
+  //lấy thông tin từ firebase
+  useEffect(() => {
     // console.log('modalGivePointsId, modalToGivePoint', modalGivePointsId, modalGivePoints);
     if (modalGivePointsId != 'none' && roomOfUser) {
       firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/userName`).once('value', snapshot => { 
@@ -272,9 +281,31 @@ const Home = ({ route, navigation }) => {
       firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).on('value', snapshot => { 
         !!snapshot.val() !== false && setStarsOfUserforGive(snapshot.val());
       });
-      setModalGivePoints(true)
     }
   }, [modalGivePointsId, countFordetectUserIdForView, roomOfUser]);
+
+  useEffect(() => {
+    //Set user 'wait' ở đây khi set Id to give points về 'none'
+    if (modalGivePointsId == 'none' && roomOfUser ) { //có roomOfUser là có userId rồi!
+      firebase.database().ref(`users/room${roomOfUser}/${userId}/chamDiem`).set('wait');
+    }
+  },[roomOfUser, modalGivePointsId])
+
+  useEffect(() => {
+    if (modalGivePointsId !== 'none' && roomOfUser && userChamDiem == 'wait') {
+      setModalGivePoints(true)
+      console.log('userChamDiem:', userChamDiem)
+    }
+    console.log('userChamDiem2222:', userChamDiem)
+  },[roomOfUser, modalGivePointsId, userChamDiem])
+
+  useEffect(() => {
+    if (modalGivePointsId == 'none'){
+      setModalGivePoints(false)
+    }
+  }, [modalGivePointsId])
+
+
 
   //cập nhật tổng quỹ tổng thưởng từ firebase
   useEffect(() => {
@@ -289,17 +320,13 @@ const Home = ({ route, navigation }) => {
         !!snapshot.val() !== false && setSoNguoiChamDiem(snapshot.val());
       });
     }
-  }, []);
+  }, [roomOfUser]);
 
   useEffect(() => {
     console.log('songuoichamdiem:', soNguoiChamDiem/1)
   }, [soNguoiChamDiem])
 
-  useEffect(() => {
-    if (modalGivePointsId == 'none'){
-      setModalGivePoints(false)
-    }
-  }, [modalGivePointsId])
+ 
 
 
   //lấy danh sách thành viên trong roomIdReview
@@ -361,7 +388,7 @@ const Home = ({ route, navigation }) => {
 
           <TouchableOpacity
             onPress={()=> {
-              setModalTongQuyTien(true)
+              keyAdmindTrueFirebase == 'true' && setModalTongQuyTien(true)
             }} 
             style={{backgroundColor: '#006400', borderRightWidth: 2, borderColor: '#ccc', }}         
           >
@@ -372,15 +399,14 @@ const Home = ({ route, navigation }) => {
               {` Tổng quỹ: ${tongQuy}k`}
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            ononPress={()=> {
-              setModalTongQuyTien(true)
-            }}          
+
+          <Text allowFontScaling={false}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            style={{ width: WIDTH * 0.33, fontSize: HEIGHT * 0.021, fontWeight: 'bold', color: '#fff', }}
           >
-            <Text allowFontScaling={false} style={{ width: WIDTH * 0.33, fontSize: HEIGHT * 0.021, fontWeight: 'bold', color: '#fff', }}>
-              {` Tổng thưởng: ${tongThuong}k`}
-            </Text>
-          </TouchableOpacity>
+            {` Tổng thưởng: ${tongThuong}k`}
+          </Text>
         </View>
 
         {/* View Bảng Thành viên trong room */}
@@ -544,6 +570,8 @@ const Home = ({ route, navigation }) => {
                     if (keyAdmindTrueFirebase !== 'true'){ //admind là người thoát sau cùng nên ko chọn điểm!
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).set(starsOfUserforGive + 1)
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
+                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${userId}/chamDiem`).set('done')
+                      roomOfUser && firebase.database().ref(`log/room${roomOfUser}`).push(`${userId} chấm 1đ - ${moment().format('YYYYMMDD')}`)
                       setModalGivePoints(false)
                       Alert.alert(`${userIdToGivePointsName} đã nhận thêm 1 điểm.`)
                     }
@@ -561,6 +589,8 @@ const Home = ({ route, navigation }) => {
                     if (keyAdmindTrueFirebase !== 'true'){
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).set(starsOfUserforGive + 2)
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
+                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${userId}/chamDiem`).set('done')
+                      roomOfUser && firebase.database().ref(`log/room${roomOfUser}`).push(`${userId} chấm 2đ - ${moment().format('YYYYMMDD')}`)
                       // console.log('starsOfUserforGive + 2', starsOfUserforGive + 2)
                       setModalGivePoints(false)
                       Alert.alert(`${userIdToGivePointsName} đã nhận thêm 2 điểm.`)
@@ -579,6 +609,8 @@ const Home = ({ route, navigation }) => {
                     if (keyAdmindTrueFirebase !== 'true'){
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).set(starsOfUserforGive + 3)
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
+                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${userId}/chamDiem`).set('done')
+                      roomOfUser && firebase.database().ref(`log/room${roomOfUser}`).push(`${userId} chấm 3đ - ${moment().format('YYYYMMDD')}`)
                       setModalGivePoints(false)
                       Alert.alert(`${userIdToGivePointsName} đã nhận thêm 3 điểm.`)
                     }
@@ -596,6 +628,8 @@ const Home = ({ route, navigation }) => {
                     if (keyAdmindTrueFirebase !== 'true'){
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).set(starsOfUserforGive + 4)
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
+                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${userId}/chamDiem`).set('done')
+                      roomOfUser && firebase.database().ref(`log/room${roomOfUser}`).push(`${userId} chấm 4đ - ${moment().format('YYYYMMDD')}`)
                       setModalGivePoints(false)
                       Alert.alert(`${userIdToGivePointsName} đã nhận thêm 4 điểm.`)
                     }
@@ -613,6 +647,8 @@ const Home = ({ route, navigation }) => {
                     if (keyAdmindTrueFirebase !== 'true'){
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).set(starsOfUserforGive + 5)
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
+                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${userId}/chamDiem`).set('done')
+                      roomOfUser && firebase.database().ref(`log/room${roomOfUser}`).push(`${userId} chấm 5đ - ${moment().format('YYYYMMDD')}`)
                       setModalGivePoints(false)
                       Alert.alert(`${userIdToGivePointsName} đã nhận thêm 5 điểm.`)
                     }
@@ -630,6 +666,8 @@ const Home = ({ route, navigation }) => {
                     if (keyAdmindTrueFirebase !== 'true'){
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).set(starsOfUserforGive + 6)
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
+                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${userId}/chamDiem`).set('done')
+                      roomOfUser && firebase.database().ref(`log/room${roomOfUser}`).push(`${userId} chấm 6đ - ${moment().format('YYYYMMDD')}`)
                       setModalGivePoints(false)
                       Alert.alert(`${userIdToGivePointsName} đã nhận thêm 6 điểm.`)
                     }
@@ -647,6 +685,8 @@ const Home = ({ route, navigation }) => {
                     if (keyAdmindTrueFirebase !== 'true'){
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).set(starsOfUserforGive + 7)
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
+                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${userId}/chamDiem`).set('done')
+                      roomOfUser && firebase.database().ref(`log/room${roomOfUser}`).push(`${userId} chấm 7đ - ${moment().format('YYYYMMDD')}`)
                       setModalGivePoints(false)
                       Alert.alert(`${userIdToGivePointsName} đã nhận thêm 7 điểm.`)
                     }
@@ -664,6 +704,8 @@ const Home = ({ route, navigation }) => {
                     if (keyAdmindTrueFirebase !== 'true'){
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).set(starsOfUserforGive + 8)
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
+                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${userId}/chamDiem`).set('done')
+                      roomOfUser && firebase.database().ref(`log/room${roomOfUser}`).push(`${userId} chấm 8đ - ${moment().format('YYYYMMDD')}`)
                       setModalGivePoints(false)
                       Alert.alert(`${userIdToGivePointsName} đã nhận thêm 8 điểm.`)
                     }
@@ -681,6 +723,8 @@ const Home = ({ route, navigation }) => {
                     if (keyAdmindTrueFirebase !== 'true'){
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).set(starsOfUserforGive + 9)
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
+                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${userId}/chamDiem`).set('done')
+                      roomOfUser && firebase.database().ref(`log/room${roomOfUser}`).push(`${userId} chấm 9đ - ${moment().format('YYYYMMDD')}`)
                       setModalGivePoints(false)
                       Alert.alert(`${userIdToGivePointsName} đã nhận thêm 9 điểm.`)
                     }
@@ -731,6 +775,7 @@ const Home = ({ route, navigation }) => {
                   setModalTongQuyTien(false)
                   roomOfUser && firebase.database().ref(`users/room${roomOfUser}/tongQuy`).set(tongQuy/1 + tongQuyInput/1)
                   Alert.alert(`Đã cộng ${tongQuyInput/1}k vào tổng quỹ.`);
+                  roomOfUser && firebase.database().ref(`log/room${roomOfUser}`).push(`${userId} cộng ${tongQuyInput/1}k vào tổng quỹ: ${tongQuy}k - ${moment().format('YYYYMMDD')}`)
                 } else {
                   Alert.alert(`Hãy nhập một số hoặc bỏ trống(nếu cộng 0k)!`);
                 }
@@ -768,6 +813,7 @@ const Home = ({ route, navigation }) => {
                 if (!isNaN(congTienThuongInput/1) && congTienThuongId) {
                   setModalCongTienThuong(false)
                   roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${congTienThuongId}/tienThuong`).set(congTienThuongIdSoTien/1 + congTienThuongInput/1)
+                  roomOfUser && firebase.database().ref(`log/room${roomOfUser}`).push(`${congTienThuongId} được ${userId} cộng ${congTienThuongInput/1}k vào tổng tiền thưởng: ${congTienThuongIdSoTien/1}k - ${moment().format('YYYYMMDD')}`)
                   Alert.alert(`${congTienThuongName} đã được cộng ${congTienThuongInput/1}k vào tổng tiền thưởng.`);
                 } else if (isNaN(congTienThuongInput/1)){
                   Alert.alert(`Hãy nhập một số hoặc bỏ trống(nếu cộng 0k)!`);
