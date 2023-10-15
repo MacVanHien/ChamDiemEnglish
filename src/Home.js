@@ -48,6 +48,7 @@ const Home = ({ route, navigation }) => {
   
   const [data, setData] = useState([])
   const [data1, setData1] = useState([]) //chuyển mảng đảo ngược xuống data1 Để tránh trường hợp bị refresh thì mảng ko đc đảo ngược
+  const [tongDiemCham, setTongDiemCham] = useState(0)
   
   
   const [dayTimeIndexForKey, setDayTimeIndexForKey] = useState(1) //để tìm tên khi nhấn nút search
@@ -176,13 +177,13 @@ const Home = ({ route, navigation }) => {
           stars: (childData.stars)/1,
           userIdFirebase: childData.userId,
           tienThuong: (childData.tienThuong)/1,
+          diemCham: childData.starsToCount,
         });
       });
       // console.log(array)
       setData(array)
     });
   }
-
 
   //đảo ngược mảng data để xếp lại người có stars cao nhất đến thấp nhất
   useEffect(() => {
@@ -191,6 +192,17 @@ const Home = ({ route, navigation }) => {
     //[...new Set(arrToGetData)] là mảng mới không có phần tử trùng lặp từ mảng arrToGetData
     setData1([...new Set(new_arr)].reverse());
   }, [data])
+
+  useEffect ( () => {
+    let tongDiem = 0
+    for (let i = 0; i < data1.length; i++) {
+      if (!isNaN((data1[i].diemCham)/1)) {
+        tongDiem = tongDiem + (data1[i].diemCham)/1
+      }
+    }
+    setTongDiemCham(tongDiem)
+  },[data1] )
+
 
 
   //run when start (at page first )  //set dayTimeIndexForKey = 2 (by hand) in firebase and it run !
@@ -296,9 +308,9 @@ const Home = ({ route, navigation }) => {
   useEffect(() => {
     if (modalGivePointsId !== 'none' && roomOfUser && userChamDiem == 'wait') {
       setModalGivePoints(true)
-      console.log('userChamDiem:', userChamDiem)
+      // console.log('userChamDiem:', userChamDiem)
     }
-    console.log('userChamDiem2222:', userChamDiem)
+    // console.log('userChamDiem2222:', userChamDiem)
   },[roomOfUser, modalGivePointsId, userChamDiem])
 
   useEffect(() => {
@@ -324,9 +336,6 @@ const Home = ({ route, navigation }) => {
     }
   }, [roomOfUser]);
 
-  useEffect(() => {
-    console.log('songuoichamdiem:', soNguoiChamDiem/1)
-  }, [soNguoiChamDiem])
 
  
 
@@ -358,6 +367,7 @@ const Home = ({ route, navigation }) => {
       });
     }
   }, [roomIdReview])
+
 
   
 
@@ -433,7 +443,7 @@ const Home = ({ route, navigation }) => {
                           [
                             {
                               text: 'Cancel',
-                              onPress: () => console.log('Cancel Pressed'),
+                              // onPress: () => console.log('Cancel Pressed'),
                               style: 'cancel',
                             },
                             {
@@ -460,10 +470,9 @@ const Home = ({ route, navigation }) => {
                           ],
                           {
                             cancelable: true,
-                            onDismiss: () =>
-                              console.log(
-                                'This alert was dismissed by tapping outside of the alert dialog.',
-                              ),
+                            onDismiss: () => {
+                              // console.log('This alert was dismissed by tapping outside of the alert dialog.')
+                            }
                           },
                         );
                       }
@@ -529,7 +538,7 @@ const Home = ({ route, navigation }) => {
                       [
                         {
                           text: 'Cancel',
-                          onPress: () => console.log('Cancel Pressed'),
+                          // onPress: () => console.log('Cancel Pressed'),
                           style: 'cancel',
                         },
                         {
@@ -537,6 +546,7 @@ const Home = ({ route, navigation }) => {
                           onPress: () => {
                             roomOfUser && firebase.database().ref(`users/room${roomOfUser}/userIdToGivePointsForView`).set('none')
                             roomOfUser && firebase.database().ref(`users/room${roomOfUser}/soNguoiChamDiem`).set('0')
+                            roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).set(starsOfUserforGive/1 + tongDiemCham/1)
                             setModalGivePointsId('none') //để fix hiển thị ở máy admind!!
                             setModalGivePoints(false)
                             setCountFordetectUserIdForView(countFordetectUserIdForView + 1)
@@ -546,10 +556,9 @@ const Home = ({ route, navigation }) => {
                       ],
                       {
                         cancelable: true,
-                        onDismiss: () =>
-                          console.log(
-                            'This alert was dismissed by tapping outside of the alert dialog.',
-                          ),
+                        onDismiss: () => {
+                          // console.log('This alert was dismissed by tapping outside of the alert dialog.')  //starsOfUserforGive //modalGivePointsId
+                        }
                       },
                     );
                   }
@@ -560,7 +569,7 @@ const Home = ({ route, navigation }) => {
                   <Image
                     allowFontScaling={false}
                     source={require('./imges/BackButton_rbg1.png')}
-                    style={{ width: WIDTH * 0.04, height: WIDTH * 0.05, marginLeft: WIDTH * 0.05, marginTop: HEIGHT*0.01, tintColor: '#000', display: keyAdmindTrueFirebase == 'true' ? 'flex' : 'none', }}
+                    style={{ width: WIDTH * 0.04, height: WIDTH * 0.05, marginLeft: WIDTH * 0.05, marginTop: HEIGHT*0.01, tintColor: '#fff', display: keyAdmindTrueFirebase == 'true' ? 'flex' : 'none', }}
                     resizeMode='stretch'
                   />
                   <View style= {{justifyContent: 'center', alignItems: 'center', flex: 1,  }}>
@@ -574,7 +583,7 @@ const Home = ({ route, navigation }) => {
                       fontSize: HEIGHT * 0.019, fontWeight: 'bold', color: '#fff',
                       position: 'relative', top: HEIGHT * 0.01, left: -WIDTH * 0.01,
                     }}>
-                      Số người đã chấm điểm - {soNguoiChamDiem/1}
+                      Số người đã chấm điểm: {soNguoiChamDiem/1} với tổng điểm: {tongDiemCham}
                     </Text>
                   </View>
                 </View>
@@ -585,7 +594,7 @@ const Home = ({ route, navigation }) => {
                 <TouchableOpacity
                   onPress={() => {
                     if (keyAdmindTrueFirebase !== 'true'){ //admind là người thoát sau cùng nên ko chọn điểm!
-                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).set(starsOfUserforGive/1 + 1)
+                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${userId}/starsToCount`).set(1)
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${userId}/chamDiem`).set('done')
                       roomOfUser && firebase.database().ref(`log/room${roomOfUser}`).push(`${userId} chấm 1đ - ${moment().format('YYYYMMDD')}`)
@@ -604,7 +613,7 @@ const Home = ({ route, navigation }) => {
                 <TouchableOpacity
                   onPress={() => {
                     if (keyAdmindTrueFirebase !== 'true'){
-                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).set(starsOfUserforGive/1 + 2)
+                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${userId}/starsToCount`).set(2)
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${userId}/chamDiem`).set('done')
                       roomOfUser && firebase.database().ref(`log/room${roomOfUser}`).push(`${userId} chấm 2đ - ${moment().format('YYYYMMDD')}`)
@@ -624,7 +633,7 @@ const Home = ({ route, navigation }) => {
                 <TouchableOpacity
                   onPress={() => {
                     if (keyAdmindTrueFirebase !== 'true'){
-                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).set(starsOfUserforGive/1 + 3)
+                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${userId}/starsToCount`).set(3)
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${userId}/chamDiem`).set('done')
                       roomOfUser && firebase.database().ref(`log/room${roomOfUser}`).push(`${userId} chấm 3đ - ${moment().format('YYYYMMDD')}`)
@@ -643,7 +652,7 @@ const Home = ({ route, navigation }) => {
                 <TouchableOpacity
                   onPress={() => {
                     if (keyAdmindTrueFirebase !== 'true'){
-                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).set(starsOfUserforGive/1 + 4)
+                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${userId}/starsToCount`).set(4)
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${userId}/chamDiem`).set('done')
                       roomOfUser && firebase.database().ref(`log/room${roomOfUser}`).push(`${userId} chấm 4đ - ${moment().format('YYYYMMDD')}`)
@@ -662,7 +671,7 @@ const Home = ({ route, navigation }) => {
                 <TouchableOpacity
                   onPress={() => {
                     if (keyAdmindTrueFirebase !== 'true'){
-                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).set(starsOfUserforGive/1 + 5)
+                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${userId}/starsToCount`).set(5)
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${userId}/chamDiem`).set('done')
                       roomOfUser && firebase.database().ref(`log/room${roomOfUser}`).push(`${userId} chấm 5đ - ${moment().format('YYYYMMDD')}`)
@@ -681,7 +690,7 @@ const Home = ({ route, navigation }) => {
                 <TouchableOpacity
                   onPress={() => {
                     if (keyAdmindTrueFirebase !== 'true'){
-                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).set(starsOfUserforGive/1 + 6)
+                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${userId}/starsToCount`).set(6)
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${userId}/chamDiem`).set('done')
                       roomOfUser && firebase.database().ref(`log/room${roomOfUser}`).push(`${userId} chấm 6đ - ${moment().format('YYYYMMDD')}`)
@@ -700,7 +709,7 @@ const Home = ({ route, navigation }) => {
                 <TouchableOpacity
                   onPress={() => {
                     if (keyAdmindTrueFirebase !== 'true'){
-                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).set(starsOfUserforGive/1 + 7)
+                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${userId}/starsToCount`).set(7)
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${userId}/chamDiem`).set('done')
                       roomOfUser && firebase.database().ref(`log/room${roomOfUser}`).push(`${userId} chấm 7đ - ${moment().format('YYYYMMDD')}`)
@@ -719,7 +728,7 @@ const Home = ({ route, navigation }) => {
                 <TouchableOpacity
                   onPress={() => {
                     if (keyAdmindTrueFirebase !== 'true'){
-                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).set(starsOfUserforGive/1 + 8)
+                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${userId}/starsToCount`).set(8)
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${userId}/chamDiem`).set('done')
                       roomOfUser && firebase.database().ref(`log/room${roomOfUser}`).push(`${userId} chấm 8đ - ${moment().format('YYYYMMDD')}`)
@@ -738,7 +747,7 @@ const Home = ({ route, navigation }) => {
                 <TouchableOpacity
                   onPress={() => {
                     if (keyAdmindTrueFirebase !== 'true'){
-                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${modalGivePointsId}/stars`).set(starsOfUserforGive/1 + 9)
+                      roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${userId}/starsToCount`).set(9)
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/soNguoiChamDiem`).set(soNguoiChamDiem/1 + 1)
                       roomOfUser && firebase.database().ref(`users/room${roomOfUser}/${userId}/chamDiem`).set('done')
                       roomOfUser && firebase.database().ref(`log/room${roomOfUser}`).push(`${userId} chấm 9đ - ${moment().format('YYYYMMDD')}`)
@@ -885,7 +894,7 @@ const Home = ({ route, navigation }) => {
                           [
                             {
                               text: 'Cancel',
-                              onPress: () => console.log('Cancel Pressed'),
+                              // onPress: () => console.log('Cancel Pressed'),
                               style: 'cancel',
                             },
                             {
@@ -907,7 +916,7 @@ const Home = ({ route, navigation }) => {
                                   [
                                     {
                                       text: 'Cancel',
-                                      onPress: () => console.log('Cancel Pressed'),
+                                      // onPress: () => console.log('Cancel Pressed'),
                                       style: 'cancel',
                                     },
                                     {
@@ -935,10 +944,9 @@ const Home = ({ route, navigation }) => {
                                   ],
                                   {
                                     cancelable: true,
-                                    onDismiss: () =>
-                                      console.log(
-                                        'This alert was dismissed by tapping outside of the alert dialog.',
-                                      ),
+                                    onDismiss: () => {
+                                      // console.log('This alert was dismissed by tapping outside of the alert dialog.')
+                                    }
                                   },
                                 );
                               },
@@ -947,10 +955,9 @@ const Home = ({ route, navigation }) => {
                           ],
                           {
                             cancelable: true,
-                            onDismiss: () =>
-                              console.log(
-                                'This alert was dismissed by tapping outside of the alert dialog.',
-                              ),
+                            onDismiss: () => {
+                              // console.log('This alert was dismissed by tapping outside of the alert dialog.')
+                            }
                           },
                         );
                         
@@ -1103,7 +1110,7 @@ const Home = ({ route, navigation }) => {
                 <Image
                   allowFontScaling={false}
                   source={require('./imges/YouButton.png')}
-                  style={{ width: WIDTH * 0.9, height: HEIGHT * 0.2, marginLeft: WIDTH * 0.05, marginVertical: 5, }}
+                  style={{ width: WIDTH * 0.9, height: HEIGHT * 0.2, marginLeft: WIDTH * 0.05, marginRight:  WIDTH * 0.02, marginVertical: 5, }}
                   resizeMode='stretch'
                 />
                 <Text allowFontScaling={false} style={{ color: '#333', fontSize: 14, marginHorizontal: '5.5%', }}>

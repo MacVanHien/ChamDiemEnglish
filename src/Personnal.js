@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { MyContext } from '../../AppContextAPI';
+import React, { useState, useEffect } from 'react';
 import { FlatList, Dimensions, Text, Modal, View, Image, TouchableOpacity, TextInput, Alert, StyleSheet } from 'react-native';
 
 import auth from '@react-native-firebase/auth';
@@ -16,12 +15,10 @@ export default function Personnal({ navigation }) {
 
     const [modalVisible, setModalVisible] = useState(true);
     const [modalVisible2, setModalVisible2] = useState(false);
-    const [modalVisibleLogInAdmin, setModalVisibleLogInAdmin] = useState(false);
 
     const [roomOfUser, setRoomOfUser] = useState('')
 
     const [email, setEmail] = useState('') //email = nickname: tên để đăng nhập
-    const [passAdmind, setPassAdmind] = useState('') //email = nickname: tên để đăng nhập
     // const [password, setPassword] = useState('')
     const [userName, setUserName] = useState('')
     const [country, setCountry] = useState('');
@@ -79,7 +76,7 @@ export default function Personnal({ navigation }) {
         userId != '' && firebase.database().ref(`users/${userId}/room`).once('value', snapshot => {
             snapshot.val() !== null && setRoomOfUser(snapshot.val());
         });
-        console.log('userId: ', userId)
+        // console.log('userId: ', userId)
     }, [userId])
 
     //get keyAmdind of the room for sign up Admind of user of the room
@@ -97,7 +94,7 @@ export default function Personnal({ navigation }) {
         setTimeout(() => {
             userId != '' && get_DATA_Users()
         }, 500);
-        console.log('keyAdmindzzzzzzzzzzzzzzzzzzzzzzzz: ', keyAdmind)
+        // console.log('keyAdmindzzzzzzzzzzzzzzzzzzzzzzzz: ', keyAdmind)
     }, [userId, roomOfUser, keyAdmind]) //Khi email thay đổi thì render lại thì get_DATA_Users mới hoạt động đúng ý định
     function getUserInfor() {
         if (userId && roomOfUser) {
@@ -139,7 +136,7 @@ export default function Personnal({ navigation }) {
                     userName: childData.userName,
                     contact: childData.contact,
                     tienThuong: (childData.tienThuong)/1,
-                    diemSo: (childData.stars)/1,
+                    // diemSo: (childData.stars)/1,
                     userRoomId: childData.userId,
                 });
             });
@@ -154,7 +151,7 @@ export default function Personnal({ navigation }) {
         const new_arr = data.filter(item => item.userName !== undefined);
         //[...new Set(arrToGetData)] là mảng mới không có phần tử trùng lặp từ mảng arrToGetData
         setData1([...new Set(new_arr)].reverse());
-        console.log('roomof user userName:', userName)
+        // console.log('roomof user userName:', userName)
 
     }, [data])
 
@@ -225,7 +222,7 @@ export default function Personnal({ navigation }) {
             [
                 {
                     text: "Hủy bỏ",
-                    onPress: () => console.log("Cancel Pressed"),
+                    // onPress: () => console.log("Cancel Pressed"),
                     style: "cancel"
                 },
                 { text: "OK", onPress: () => signOutUser() }
@@ -243,10 +240,10 @@ export default function Personnal({ navigation }) {
     }, [userId, roomOfUser]);  //có [userId] thì mới chạy được đường đúng trên firebase!
 
 
-    useEffect(() => {
-        console.log('keyAdmindTrue zzzz', keyAdmindTrue)
-        console.log('keyAdmind zzzz', keyAdmind)
-    }, [keyAdmindTrue, keyAdmind]);  //có [userId] thì mới chạy được đường đúng trên firebase!
+    // useEffect(() => {
+    //     console.log('keyAdmindTrue zzzz', keyAdmindTrue)
+    //     console.log('keyAdmind zzzz', keyAdmind)
+    // }, [keyAdmindTrue, keyAdmind]);  //có [userId] thì mới chạy được đường đúng trên firebase!
 
 
 
@@ -324,13 +321,13 @@ export default function Personnal({ navigation }) {
                                         [
                                             {
                                                 text: 'Cancel',
-                                                onPress: () => console.log('Cancel Pressed'),
+                                                // onPress: () => console.log('Cancel Pressed'),
                                                 style: 'cancel',
                                             },
                                             {
                                                 text: 'Đăng ký',
                                                 onPress: () => {
-                                                    console.log('dang ky')
+                                                    // console.log('dang ky')
                                                     firebase.database().ref(`users/room${roomOfUser}/${userId}/keyAdmindTrue`).set('true')
                                                     firebase.database().ref(`users/room${roomOfUser}/keyAdmind`).set('true')
                                                 },
@@ -339,10 +336,9 @@ export default function Personnal({ navigation }) {
                                         ],
                                         {
                                             cancelable: true,
-                                            onDismiss: () =>
-                                                console.log(
-                                                    'This alert was dismissed by tapping outside of the alert dialog.',
-                                                ),
+                                            onDismiss: () => {
+                                                // console.log('This alert was dismissed by tapping outside of the alert dialog.')
+                                              }
                                         },
                                     );
                                 }
@@ -369,13 +365,13 @@ export default function Personnal({ navigation }) {
                                         [
                                             {
                                                 text: 'Cancel',
-                                                onPress: () => console.log('Cancel Pressed'),
+                                                // onPress: () => console.log('Cancel Pressed'),
                                                 style: 'cancel',
                                             },
                                             {
                                                 text: 'Đăng xuất',
                                                 onPress: () => {
-                                                    console.log('dang xuat')
+                                                    // console.log('dang xuat')
                                                     firebase.database().ref(`users/room${roomOfUser}/${userId}/keyAdmindTrue`).set('false')
                                                     firebase.database().ref(`users/room${roomOfUser}/keyAdmind`).set('false')
                                                 },
@@ -384,10 +380,9 @@ export default function Personnal({ navigation }) {
                                         ],
                                         {
                                             cancelable: true,
-                                            onDismiss: () =>
-                                                console.log(
-                                                    'This alert was dismissed by tapping outside of the alert dialog.',
-                                                ),
+                                            onDismiss: () => {
+                                                // console.log('This alert was dismissed by tapping outside of the alert dialog.')
+                                              }
                                         },
                                     );
                                 }
@@ -444,13 +439,13 @@ export default function Personnal({ navigation }) {
                                       [
                                         {
                                           text: 'Cancel',
-                                          onPress: () => console.log('Cancel Pressed'),
+                                        //   onPress: () => console.log('Cancel Pressed'),
                                           style: 'cancel',
                                         },
                                         {
                                           text: 'Ok',
                                           onPress: () => {
-                                            console.log('map of user:', data)
+                                            // console.log('map of user:', data)
                                             for (var i=0; i<data.length; i++){
                                                 roomOfUser && data.length > 0 &&
                                                     firebase.database().ref(`users/room${roomOfUser}/${data[i].userRoomId}/stars`).set(5)
@@ -462,10 +457,9 @@ export default function Personnal({ navigation }) {
                                       ],
                                       {
                                         cancelable: true,
-                                        onDismiss: () =>
-                                          console.log(
-                                            'This alert was dismissed by tapping outside of the alert dialog.',
-                                          ),
+                                        onDismiss: () => {
+                                            // console.log('This alert was dismissed by tapping outside of the alert dialog.')
+                                          }
                                       },
                                     );
                                   }
@@ -510,7 +504,7 @@ export default function Personnal({ navigation }) {
                                         {`${index + 1}. ${item.userName}:`}
                                     </Text>
                                     <Text allowFontScaling={false} style={{ marginVertical: 2, fontSize: 14, fontWeight: 'bold', color: '#006400', }}>
-                                        {`    ${item.tienThuong}k (${item.country}), ${item.diemSo}đ.`}
+                                        {`    ${item.tienThuong}k (${item.country})`}
                                     </Text>
                                 </View>
                                 <Text allowFontScaling={false} style={{ marginRight: 0, fontSize: 14 - HEIGHT * 0.001, color: '#000', }}>
